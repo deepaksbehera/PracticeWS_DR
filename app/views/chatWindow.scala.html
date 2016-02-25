@@ -1,0 +1,82 @@
+@(appUser:models.AppUser)
+@main("Welcome To Chat World"){
+<div class="container">
+	<div class="col-md-8">
+	        <div class="panel panel-info">
+	            <div class="panel-heading" id="message-room">
+	                RECENT CHAT HISTORY
+	            </div>
+	            <div class="panel-body" id="message-data">
+								<ul class="media-list">
+	                                    <li class="media">
+	                                        <div class="media-body">
+	                                            <div class="media">
+	                                                <a href="#" class="pull-left">
+	                                                    <img src="http://placehold.it/50/55C1E7/fff&text=U" class="media-object img-circle ">
+	                                                </a>
+	                                                <div class="media-body">
+	                                                    Donec sit amet ligula enim. Duis vel condimentum massa.
+	              										Donec sit amet ligula enim. Duis vel condimentum massa.Donec sit amet ligula enim. 
+	                                                    Duis vel condimentum massa.
+	                                                    Donec sit amet ligula enim. Duis vel condimentum massa.
+	                                                    <br>
+	                                                   <small class="text-muted">Alex Deo | 23rd June at 5:00pm</small>
+	                                                    <hr>
+	                                                </div>
+	                                            </div>
+	
+	                                        </div>
+	                                    </li>
+		    							 <li class="media">
+		                                        <div class="media-body">
+		                                            <div class="media">
+		                                                <a href="#" class="pull-left">
+		                                                    <img src="http://placehold.it/50/FA6F57/fff&text=ME" class="media-object img-circle ">
+		                                                </a>
+		                                                <div class="media-body">
+		                                                    Donec sit amet ligula enim. Duis vel condimentum massa.
+		             										 Donec sit amet ligula enim. Duis vel condimentum massa.Donec sit amet ligula enim. 
+		                                                    Duis vel condimentum massa.
+		                                                    Donec sit amet ligula enim. Duis vel condimentum massa.
+		                                                    <br>
+		                                                   <small class="text-muted">Jhon Rexa | 23rd June at 5:00pm</small>
+		                                                    <hr>
+		                                                </div>
+		                                            </div>
+		
+		                                        </div>
+		                                  </li>
+	                          </ul>
+	            </div>
+	            <div class="panel-footer">
+	                <div class="input-group">
+                          <input type="text" placeholder="Enter Message" class="form-control" id="messageBox">
+                          <span class="input-group-btn">
+                              <button type="button" class="btn btn-info" id="sendMessage">SEND</button>
+                          </span>
+	                 </div>
+	            </div>
+	        </div>
+    </div>
+	<div class="col-md-4">
+		<div class="panel panel-info">
+	            <div class="panel-heading">
+					GROUPS
+				</div>
+				@for(group <- appUser.getAppUserGroups){
+					<div><a href="#">@group.name</a></div>
+				}
+		</div>
+		<div class="panel panel-info">
+		     <div class="panel-heading">
+		     DIRECT MESSAGES
+		     </div>
+			@for(user <- AppUser.find.all()){
+				<div><a href="#">@user.name</a></div>
+			}
+		</div>
+	</div>
+</div>
+<script type="text/javascript" charset="utf-8" src="@routes.WebSocketController.loadChatWSJs(appUser.id)"></script>
+}
+ 
