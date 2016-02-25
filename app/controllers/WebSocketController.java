@@ -3,7 +3,7 @@ package controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import models.AppUser;
-import models.Messages;
+import models.Message;
 import play.Logger;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -25,7 +25,7 @@ public class WebSocketController extends Controller {
             // called when websocket handshake is done
             public void onReady(WebSocket.In<JsonNode> in, WebSocket.Out<JsonNode> out){
             	Logger.info("websocket handshake is done");
-            	Messages.start(in, out, appUserId);
+            	Message.start(in, out, appUserId);
             }
         };   
     }   

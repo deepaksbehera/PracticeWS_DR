@@ -1,4 +1,5 @@
 @(appUserId : Long)
+var messageObj;
 
 if ("WebSocket" in window){
 $(function(){
@@ -9,7 +10,8 @@ $(function(){
     var chatSocket = new WS('@routes.WebSocketController.wsInterface(appUserId).webSocketURL(request)');
     
     var writeMessages = function(event){
-        $('#message-data').prepend('<p>'+event.data+'</p>');
+    	var data = JSON.parse(event.data)
+        $('#message-data').prepend(data.messageContent);
     }
     
     chatSocket.onmessage = writeMessages;
@@ -22,11 +24,19 @@ $(function(){
         }
     }); 
     $(document).on('click','#sendMessage',function(){
-    	sendMessage($('#messageBox').val())
+    	sendMessage($('#messageBox').val());
     });
     
     function sendMessage(message){
-    	chatSocket.send(message);
+    	//alert(message+">"+type+">"+toUserId)
+    	messageObj = new Object();
+		messageObj.content = message;
+		messageObj.msgType = $('#msgTypeVal').val();
+		messageObj.msgById = $('#msgById').val();
+		messageObj.msgToId = $('#msgToId').val();
+		var jsonText = JSON.stringify(messageObj);
+    	//alert(jsonText);
+    	chatSocket.send(jsonText);
     	$('#messageBox').val(''); 
     }
     
