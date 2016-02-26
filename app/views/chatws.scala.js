@@ -36,12 +36,12 @@ $(function(){
      			$('#message-data').append(data.messageContent);
      		}else{
      			var activeSelect = $('.groupMsgs .clickSection.active');
-    			if(activeSelect.attr('msg-to-id') == msgById){
+    			if(activeSelect.attr('msg-to-id') == msgToId){
     				$('#message-data').append(data.messageContent);
     			}else{
-    				var count = parseInt($('.directMsgs .clickSection[msg-to-id="'+msgById+'"]').find('.badge').html());
+    				var count = parseInt($('.groupMsgs .clickSection[msg-to-id="'+msgToId+'"]').find('.badge').html());
     				count++;
-    				$('.directMsgs .clickSection[msg-to-id="'+msgById+'"]').find('.badge').html(count);
+    				$('.groupMsgs .clickSection[msg-to-id="'+msgToId+'"]').find('.badge').html(count);
     			}
      		}
     		 
