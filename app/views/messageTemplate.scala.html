@@ -1,0 +1,21 @@
+@(message : models.Message, isMyMessage : Boolean)
+<li class="media">
+     <div class="media-body">
+         <div class="media">
+             <a href="#" class="pull-left">
+             	@if(isMyMessage){
+                 	<img src="http://placehold.it/50/FA6F57/fff&text=ME" class="media-object img-circle ">
+             	}else{
+             		<img src="http://placehold.it/50/55C1E7/fff&text=U" class="media-object img-circle ">
+             	}
+             </a>
+             <div class="media-body">
+                 @message.messgae
+                 <br>
+                <small class="text-muted">@message.sendBy.name | @message.sendOn.format("dd-MM-yyyy hh:mm:ss") </small>
+                 <hr>
+             </div>
+         </div>
+
+     </div>
+</li>

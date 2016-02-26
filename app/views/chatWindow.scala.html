@@ -1,55 +1,23 @@
-@(appUser:models.AppUser)
+@(appUser : models.AppUser)
 @main("Welcome To Chat World"){
 <div class="container">
 	<div class="col-md-8">
 	        <div class="panel panel-info">
-	            <div class="panel-heading" id="message-room">
-	                RECENT CHAT HISTORY
+	            <div class="panel-heading" id="message-room-name">
+	                GENERAL
 	            </div>
-	            <div class="panel-body" id="message-data">
-								<ul class="media-list">
-	                                    <li class="media">
-	                                        <div class="media-body">
-	                                            <div class="media">
-	                                                <a href="#" class="pull-left">
-	                                                    <img src="http://placehold.it/50/55C1E7/fff&text=U" class="media-object img-circle ">
-	                                                </a>
-	                                                <div class="media-body">
-	                                                    Donec sit amet ligula enim. Duis vel condimentum massa.
-	              										Donec sit amet ligula enim. Duis vel condimentum massa.Donec sit amet ligula enim. 
-	                                                    Duis vel condimentum massa.
-	                                                    Donec sit amet ligula enim. Duis vel condimentum massa.
-	                                                    <br>
-	                                                   <small class="text-muted">Alex Deo | 23rd June at 5:00pm</small>
-	                                                    <hr>
-	                                                </div>
-	                                            </div>
-	
-	                                        </div>
-	                                    </li>
-		    							 <li class="media">
-		                                        <div class="media-body">
-		                                            <div class="media">
-		                                                <a href="#" class="pull-left">
-		                                                    <img src="http://placehold.it/50/FA6F57/fff&text=ME" class="media-object img-circle ">
-		                                                </a>
-		                                                <div class="media-body">
-		                                                    Donec sit amet ligula enim. Duis vel condimentum massa.
-		             										 Donec sit amet ligula enim. Duis vel condimentum massa.Donec sit amet ligula enim. 
-		                                                    Duis vel condimentum massa.
-		                                                    Donec sit amet ligula enim. Duis vel condimentum massa.
-		                                                    <br>
-		                                                   <small class="text-muted">Jhon Rexa | 23rd June at 5:00pm</small>
-		                                                    <hr>
-		                                                </div>
-		                                            </div>
-		
-		                                        </div>
-		                                  </li>
-	                          </ul>
+	            <div class="panel-body">
+					<ul class="media-list" id="message-data">
+                         @*@for(message <- models.Message.find.all()){
+                         	@messageTemplate(message, message.sendBy.id.equals(appUser.id))	
+                         }*@
+	                </ul>
 	            </div>
 	            <div class="panel-footer">
 	                <div class="input-group">
+	                		<input type="hidden" id="msgTypeVal" value="@utils.Constants.GROUP_MESSAGE">
+	                		<input type="hidden" id="msgById" value="@appUser.id">
+	                		<input type="hidden" id="msgToId" value="">
                           <input type="text" placeholder="Enter Message" class="form-control" id="messageBox">
                           <span class="input-group-btn">
                               <button type="button" class="btn btn-info" id="sendMessage">SEND</button>
@@ -60,23 +28,46 @@
     </div>
 	<div class="col-md-4">
 		<div class="panel panel-info">
-	            <div class="panel-heading">
-					GROUPS
-				</div>
+            <div class="panel-heading">
+				GROUPS
+			</div>
 				@for(group <- appUser.getAppUserGroups){
-					<div><a href="#">@group.name</a></div>
+					<div><a href="#" msg-to-id="@group.id" msg-type="@utils.Constants.GROUP_MESSAGE" class="clickSection">@group.name</a></div>
 				}
 		</div>
 		<div class="panel panel-info">
 		     <div class="panel-heading">
-		     DIRECT MESSAGES
+		     	DIRECT MESSAGES
 		     </div>
-			@for(user <- AppUser.find.all()){
-				<div><a href="#">@user.name</a></div>
-			}
+				@for(user <- AppUser.find.where().ne("id", appUser.id).findList()){
+					<div><a href="#" msg-to-id="@user.id" msg-type="@utils.Constants.DIRECT_MESSAGE" class="clickSection">@user.name</a></div>
+				}
 		</div>
 	</div>
 </div>
 <script type="text/javascript" charset="utf-8" src="@routes.WebSocketController.loadChatWSJs(appUser.id)"></script>
+<script>
+$(document).on('click','.clickSection',function(e){
+	var name = $(this).text();
+	var msgType = $(this).attr('msg-type');
+	var msgToId = $(this).attr('msg-to-id');
+	var messageDataDiv = $('#message-data');
+	
+	console.log(name+">>"+msgType+">>"+msgToId);
+	$('#message-room-name').html(name);
+	$('#msgTypeVal').val(msgType);
+	$('#msgToId').val(msgToId);
+	messageDataDiv.html('');
+	$.get('/get-messages/'+msgType+"/"+msgToId,function(data){
+		$.each(data, function(key, value){
+			//console.log(key+">>"+value);
+			messageDataDiv.append(value);
+
+		});
+	});
+});
+
+
+</script>
 }
  

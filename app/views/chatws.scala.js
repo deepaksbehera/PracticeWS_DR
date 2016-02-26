@@ -1,5 +1,8 @@
 @(appUserId : Long)
+
+//Rupesh code
 var messageObj;
+
 if ("WebSocket" in window){
 $(function(){
     // get websocket class, firefox has a different way to get it for firefox use MozWebSocket
@@ -8,20 +11,12 @@ $(function(){
     // open pewpew with websocket
     var chatSocket = new WS('@routes.WebSocketController.wsInterface(appUserId).webSocketURL(request)');
     
-    chatSocket.onmessage = receiveEventOn;
-    
-    var receiveEventOn = function(event){
-    	alert(event);
-		var data = JSON.parse(event.data)
-    }
-    
-    
     var writeMessages = function(event){
-    	alert(event);
-        $('#message-data').prepend('<p>'+event.data+'</p>');
+    	var data = JSON.parse(event.data)
+        $('#message-data').prepend(data.messageContent);
     }
     
-    chatSocket.onmessage = receiveEventOn;
+    chatSocket.onmessage = writeMessages;
     
     $('#messageBox').keyup(function(event){
         var charCode = (event.which) ? event.which : event.keyCode ;
@@ -31,21 +26,19 @@ $(function(){
         }
     }); 
     $(document).on('click','#sendMessage',function(){
-    	sendMessage($('#messageBox').val())
+    	sendMessage($('#messageBox').val());
     });
     
-    //var JSONObj = { "senderId" : @appUserId, "isMessagePersonal"  : true , "message": message};
-    //alert(JSONObj.senderId);
-    //alert(JSONObj.messageType);
-    
-    
     function sendMessage(message){
-    	var JSONObj = { "senderId" : @appUserId, "isMessagePersonal"  : true , "messageText": message};
+    	//alert(message+">"+type+">"+toUserId)
     	messageObj = new Object();
-		messageObj.messageText = message;
-		messageObj.toUserId = @appUserId;
-		messageObj.isMessagePersonal= true;
-    	chatSocket.send(JSON.stringify(messageObj));
+		messageObj.content = message;
+		messageObj.msgType = $('#msgTypeVal').val();
+		messageObj.msgById = $('#msgById').val();
+		messageObj.msgToId = $('#msgToId').val();
+		var jsonText = JSON.stringify(messageObj);
+    	//alert(jsonText);
+    	chatSocket.send(jsonText);
     	$('#messageBox').val(''); 
     }
     

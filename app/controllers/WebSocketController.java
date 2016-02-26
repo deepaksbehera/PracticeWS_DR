@@ -1,12 +1,21 @@
 package controllers;
 
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 import actors.ChatRoom;
+import models.AppUser;
+import models.Message;
 import play.Logger;
+import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.WebSocket;
+import utils.Constants;
 
 public class WebSocketController extends Controller {
 	
@@ -14,19 +23,6 @@ public class WebSocketController extends Controller {
     	Logger.info("ws js is loaded");
         return ok(views.js.chatws.render(appUserId));
     }
-    
-   /* // Websocket interface
-    public WebSocket<String> wsInterface(Long appUserId){
-        return new WebSocket<String>(){
-            
-            // called when websocket handshake is done
-            public void onReady(WebSocket.In<String> in, WebSocket.Out<String> out){
-            	Logger.info("websocket handshake is done");
-            	Messages.start(in, out);
-            }
-        };   
-    }*/   
-    
     
 	 public WebSocket<JsonNode> wsInterface(final Long loginAppUserId) {
 		 Logger.info("---entring chatRoom method -"+loginAppUserId);
@@ -48,6 +44,24 @@ public class WebSocketController extends Controller {
 	                }
 	            }
 	        };
+	    }
+	    public Result getMessages(String type, Long id){
+	    	List<Message> msgList = new LinkedList<Message>();
+	    	AppUser loginUser  = LoginController.getLoggedInUser();
+	    	if(type.trim().equals(Constants.DIRECT_MESSAGE)){
+	    		msgList = ChatRoom.getMessages(true, loginUser, AppUser.find.byId(id));
+	    	}else{
+	    		
+	    	}
+	    	Map<Long,String> messageMap = new LinkedHashMap<Long,String>();
+	    	msgList.stream().forEach(message -> {
+	    		if(message.sendBy.id.equals(loginUser.id)){
+	    			messageMap.put(message.id, views.html.messageTemplate.render(message, true).toString());
+	    		}else{
+	    			messageMap.put(message.id, views.html.messageTemplate.render(message, false).toString());
+	    		}
+	    	});
+	    	return ok(Json.toJson(messageMap));
 	    }
 	
 }
