@@ -10,8 +10,42 @@ $(function(){
     var chatSocket = new WS('@routes.WebSocketController.wsInterface(appUserId).webSocketURL(request)');
     
     var writeMessages = function(event){
-    	var data = JSON.parse(event.data)
-        $('#message-data').prepend(data.messageContent);
+    	var data = JSON.parse(event.data);
+    	
+    	var name = $(this).text();
+    	var msgType = data.messageType;
+    	var msgToId = data.toId;
+    	var msgById = data.byId;
+    	var msgKind = data.messageKind;
+    	console.log(JSON.stringify(data));
+    	if(msgType == "DIRECT"){
+    		if(msgKind == "myMsg"){
+    			$('#message-data').append(data.messageContent);
+    		}else{
+    			var activeSelect = $('.directMsgs .clickSection.active');
+    			if(activeSelect.attr('msg-to-id') == msgById){
+    				$('#message-data').append(data.messageContent);
+    			}else{
+    				var count = parseInt($('.directMsgs .clickSection[msg-to-id="'+msgById+'"]').find('.badge').html());
+    				count++;
+    				$('.directMsgs .clickSection[msg-to-id="'+msgById+'"]').find('.badge').html(count);
+    			}
+    		}
+    	 }else{
+    		 if(msgKind == "myMsg"){
+     			$('#message-data').append(data.messageContent);
+     		}else{
+     			var activeSelect = $('.groupMsgs .clickSection.active');
+    			if(activeSelect.attr('msg-to-id') == msgById){
+    				$('#message-data').append(data.messageContent);
+    			}else{
+    				var count = parseInt($('.directMsgs .clickSection[msg-to-id="'+msgById+'"]').find('.badge').html());
+    				count++;
+    				$('.directMsgs .clickSection[msg-to-id="'+msgById+'"]').find('.badge').html(count);
+    			}
+     		}
+    		 
+    	 }
     }
     
     chatSocket.onmessage = writeMessages;

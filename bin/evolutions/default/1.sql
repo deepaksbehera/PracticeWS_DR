@@ -27,6 +27,7 @@ create table message (
   send_to_id                bigint,
   send_by_id                bigint,
   is_message_personal       boolean,
+  isseen                    boolean,
   group_channel_id          bigint,
   created_on                timestamp not null,
   last_update               timestamp not null,

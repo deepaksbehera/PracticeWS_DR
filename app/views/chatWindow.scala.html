@@ -1,4 +1,4 @@
-@(appUser : models.AppUser)
+@(appUser : models.AppUser, generalGroupId : Long)
 @main("Welcome To Chat World"){
 <div class="container">
 	<div class="col-md-8">
@@ -8,16 +8,16 @@
 	            </div>
 	            <div class="panel-body">
 					<ul class="media-list" id="message-data">
-                         @*@for(message <- models.Message.find.all()){
+                         @for(message <- models.Messages.getGroupMessages(appUser, GroupChannel.find.byId(generalGroupId))){
                          	@messageTemplate(message, message.sendBy.id.equals(appUser.id))	
-                         }*@
+                         }
 	                </ul>
 	            </div>
 	            <div class="panel-footer">
 	                <div class="input-group">
 	                		<input type="hidden" id="msgTypeVal" value="@utils.Constants.GROUP_MESSAGE">
 	                		<input type="hidden" id="msgById" value="@appUser.id">
-	                		<input type="hidden" id="msgToId" value="">
+	                		<input type="hidden" id="msgToId" value="@generalGroupId">
                           <input type="text" placeholder="Enter Message" class="form-control" id="messageBox">
                           <span class="input-group-btn">
                               <button type="button" class="btn btn-info" id="sendMessage">SEND</button>
@@ -31,28 +31,38 @@
             <div class="panel-heading">
 				GROUPS
 			</div>
+			<div class="panel-body groupMsgs">
 				@for(group <- appUser.getAppUserGroups){
-					<div><a href="#" msg-to-id="@group.id" msg-type="@utils.Constants.GROUP_MESSAGE" class="clickSection">@group.name</a></div>
+					<div>
+						<a href="#" msg-to-id="@group.id" msg-type="@utils.Constants.GROUP_MESSAGE" class="clickSection @if(group.id.equals(generalGroupId)){active}">@group.name <span class="badge">0</span></a>
+					</div>
 				}
+			</div>
 		</div>
 		<div class="panel panel-info">
 		     <div class="panel-heading">
 		     	DIRECT MESSAGES
 		     </div>
+		     <div class="panel-body directMsgs">
 				@for(user <- AppUser.find.where().ne("id", appUser.id).findList()){
-					<div><a href="#" msg-to-id="@user.id" msg-type="@utils.Constants.DIRECT_MESSAGE" class="clickSection">@user.name</a></div>
+					<div>
+						<a href="#" msg-to-id="@user.id" msg-type="@utils.Constants.DIRECT_MESSAGE" class="clickSection">@user.name <span class="badge">0</span></a>
+					</div> 
 				}
+			 </div>
 		</div>
 	</div>
 </div>
 <script type="text/javascript" charset="utf-8" src="@routes.WebSocketController.loadChatWSJs(appUser.id)"></script>
 <script>
 $(document).on('click','.clickSection',function(e){
+	
+	var item = $(this);
 	var name = $(this).text();
 	var msgType = $(this).attr('msg-type');
 	var msgToId = $(this).attr('msg-to-id');
 	var messageDataDiv = $('#message-data');
-	
+	item.find('.badge').html('0');
 	console.log(name+">>"+msgType+">>"+msgToId);
 	$('#message-room-name').html(name);
 	$('#msgTypeVal').val(msgType);
@@ -64,6 +74,8 @@ $(document).on('click','.clickSection',function(e){
 			messageDataDiv.append(value);
 
 		});
+		$('.clickSection').removeClass('active');
+		item.addClass('active');
 	});
 });
 

@@ -20,4 +20,8 @@ public class GroupChannel extends BaseEntity{
 	
 	public static Model.Finder<Long, GroupChannel> find = new Model.Finder<Long, GroupChannel>(GroupChannel.class);
 	
+	public static GroupChannel getGeneralGroup(){
+		return GroupChannel.find.where().eq("isGroupGeneral", Boolean.TRUE).findUnique();
+	}
+	
 }

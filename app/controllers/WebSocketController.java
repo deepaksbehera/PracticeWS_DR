@@ -8,8 +8,10 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import actors.ChatRoom;
 import models.AppUser;
-import models.Message;
+import models.GroupChannel;
+import models.Messages;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -33,18 +35,18 @@ public class WebSocketController extends Controller {
             // called when websocket handshake is done
             public void onReady(WebSocket.In<JsonNode> in, WebSocket.Out<JsonNode> out){
             	Logger.info("websocket handshake is done");
-            	Message.start(in, out, appUserId);
+            	ChatRoom.start(in, out, appUserId);
             }
         };   
     } 
     
     public Result getMessages(String type, Long id){
-    	List<Message> msgList = new LinkedList<Message>();
+    	List<Messages> msgList = new LinkedList<Messages>();
     	AppUser loginUser  = LoginController.getLoggedInUser();
     	if(type.trim().equals(Constants.DIRECT_MESSAGE)){
-    		msgList = Message.getMessages(true, loginUser, AppUser.find.byId(id));
+    		msgList = Messages.getPersonalMessages(loginUser, AppUser.find.byId(id));
     	}else{
-    		
+    		msgList = Messages.getGroupMessages(loginUser, GroupChannel.find.byId(id));
     	}
     	Map<Long,String> messageMap = new LinkedHashMap<Long,String>();
     	msgList.stream().forEach(message -> {
