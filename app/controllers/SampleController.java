@@ -22,6 +22,10 @@ public class SampleController extends Controller{
 			appUser3.name = "SunilKumar";
 			appUser3.save();
 			
+			AppUser appUser4  = new AppUser();
+			appUser4.name = "Amol";
+			appUser4.save();
+			
 			GroupChannel channel = new GroupChannel();
 			channel.name = "GENERAL";
 			channel.isGroupGeneral = Boolean.TRUE;

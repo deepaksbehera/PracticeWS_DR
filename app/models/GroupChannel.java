@@ -20,5 +20,4 @@ public class GroupChannel extends BaseEntity{
 	
 	public static Model.Finder<Long, GroupChannel> find = new Model.Finder<Long, GroupChannel>(GroupChannel.class);
 	
-	
 }

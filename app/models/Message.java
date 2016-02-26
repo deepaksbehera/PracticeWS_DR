@@ -3,12 +3,14 @@ package models;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
+import com.avaje.ebean.Expr;
 import com.avaje.ebean.Model;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -37,13 +39,17 @@ public class Message extends BaseEntity{
 	
 	public Boolean isMessagePersonal = Boolean.TRUE;
 	
+	public Boolean isseen = Boolean.FALSE;
+	
 	@ManyToOne
 	public GroupChannel groupChannel;
 	
 	public static Model.Finder<Long, Message> find = new Model.Finder<Long, Message>(Message.class);
 	
 	
-	
+	/**
+	 * Websocket and utility methods
+	 */
 	
     // collect all websockets here
     private static List<WebSocket.Out<JsonNode>> connections = new ArrayList<WebSocket.Out<JsonNode>>();
@@ -59,13 +65,13 @@ public class Message extends BaseEntity{
         in.onMessage(new Callback<JsonNode>(){
             public void invoke(JsonNode event){
             	//Logger.info("event---"+event.toString());
-            	String messageContent = event.get("content").asText(); 
-            	String msgType = event.get("msgType").asText();
+            	String messageContent = event.get("content").asText().trim(); 
+            	String msgType = event.get("msgType").asText().trim();
             	Long msgById = event.get("msgById").asLong();
             	Long msgToId = event.get("msgToId").asLong();
             	
             	Logger.info("event---"+messageContent+">>>"+msgType+">>"+msgToId+ ">>"+msgById);
-            	if(msgType.equals("direct")){
+            	if(msgType.equals(Constants.DIRECT_MESSAGE)){
             		Message.notifyIndividual(messageContent, msgToId, msgById);
             	}else{
             		Message.notifyAll(event);
@@ -123,6 +129,18 @@ public static void notifyIndividual(String content, Long toId, Long byId){
 		}
     	
     }
+
+	public static List<Message> getMessages(Boolean isMsgPersonal, AppUser loginUser, AppUser requestForUser){
+		List<Message> msgList = new LinkedList<Message>();
+		if(isMsgPersonal){
+			msgList = Message.find.where().or(
+					Expr.and(Expr.eq("sendBy", loginUser), Expr.eq("sendTo", requestForUser)), 
+					Expr.and(Expr.eq("sendBy", requestForUser), Expr.eq("sendTo", loginUser))).orderBy("sendOn").findList();
+		}else{
+			
+		}
+		return msgList;
+	}
     
 	
 }
