@@ -47,6 +47,10 @@ public class Messages extends BaseEntity{
 		return msgList;
 	}
 	
+	public static Integer getUnreadMessagesCount(AppUser loginUser, AppUser requestForUser){
+		return Messages.find.where().and(Expr.eq("sendBy", loginUser), Expr.and(Expr.eq("isMessagePersonal", true), Expr.eq("isSeen", false))).findRowCount();
+	}
+	
 	public static List<Messages> getGroupMessages(AppUser loginUser, GroupChannel group){
 		List<Messages> msgList = new LinkedList<Messages>();
 		if(group.appUserList.contains(loginUser)){

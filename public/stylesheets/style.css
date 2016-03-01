@@ -114,14 +114,14 @@ height:93vh
   padding-left: 6px;
 }
 .chat .chat-history .message {
-  color: white;
-  padding: 18px 20px;
-  line-height: 26px;
-  font-size: 16px;
-  border-radius: 7px;
-  margin-bottom: 30px;
-  width: 90%;
-  position: relative;
+	color: #292c2d;
+	padding: 10px 15px;
+	line-height: 20px;
+	font-size: 16px;
+	border-radius: 7px;
+	margin-bottom: 30px;
+	width: 85%;
+	position: relative;
 }
 .chat .chat-history .message:after {
   bottom: 100%;
@@ -213,4 +213,19 @@ height:93vh
   content: " ";
   clear: both;
   height: 0;
+}
+.groupicon {
+float: left;
+border: 1px solid rgb(83, 83, 83);
+width: 40px;
+height: 40px;
+text-align: center;
+line-height: 40px;
+border-radius: 50%;
+margin: 7px;
+background-color: rgb(243, 243, 243);
+}
+.groupicon .fa {
+    font-size: 20px;
+    color: #535353;
 }

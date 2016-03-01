@@ -30,7 +30,7 @@ $(function(){
     			}else{
     				var count = parseInt($('.directMsgs .clickSection[msg-to-id="'+msgById+'"]').find('.badge').html());
     				count++;
-    				$('.directMsgs .clickSection[msg-to-id="'+msgById+'"]').find('.badge').html(count);
+    				$('.directMsgs .clickSection[msg-to-id="'+msgById+'"]').find('.badge').show().html(count).css({'background-color':'rgb(201, 73, 73)'});
     			}
     		}
     	 }
@@ -44,7 +44,7 @@ $(function(){
     			}else{
     				var count = parseInt($('.groupMsgs .clickSection[msg-to-id="'+msgToId+'"]').find('.badge').html());
     				count++;
-    				$('.groupMsgs .clickSection[msg-to-id="'+msgToId+'"]').find('.badge').html(count);
+    				$('.groupMsgs .clickSection[msg-to-id="'+msgToId+'"]').find('.badge').show().html(count).css({'background-color':'rgb(201, 73, 73)'});	
     			}
      		}
     		 
@@ -62,11 +62,16 @@ $(function(){
         var charCode = (event.which) ? event.which : event.keyCode ;
         // if enter (charcode 13) is pushed, send message, then clear input field
         if(charCode === 13){
-        	sendMessage($(this).val());   
+        	if($(this).val().trim().length > 0){
+        		sendMessage($(this).val());
+        	}
         }
     }); 
     $(document).on('click','#sendMessage',function(){
-    	sendMessage($('#messageBox').val());
+    	var msg = $('#messageBox').val();
+    	if(msg.trim().length > 0){
+    		sendMessage(msg);
+    	}
     });
     
     function sendMessage(message){

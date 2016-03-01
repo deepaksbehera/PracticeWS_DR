@@ -16,5 +16,5 @@ GET	   /logout							controllers.LoginController.processLogout()
 
 #Chat
 GET    /get-ws-js/:id 					controllers.WebSocketController.loadChatWSJs(id:Long)
-GET    /get-ws-interface/:id				controllers.WebSocketController.wsInterface(id:Long)
-GET   /get-messages/:type/:toId		controllers.WebSocketController.getMessages(type:String, toId:Long)
+GET    /get-ws-interface/:id			controllers.WebSocketController.wsInterface(id:Long)
+GET    /get-messages/:type/:toId		controllers.WebSocketController.getMessages(type:String, toId:Long)
