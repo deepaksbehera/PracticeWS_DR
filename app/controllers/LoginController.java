@@ -25,11 +25,13 @@ public class LoginController extends Controller{
 	public Result getDashBoard(){
 		final AppUser appUsr = LoginController.getLoggedInUser();
 		if(appUsr != null){
-			//return ok(views.html.chatWindow.render(appUsr));
-			return ok(views.html.chatWindow.render(appUsr, GroupChannel.getGeneralGroup().id));
+			return ok(views.html.newChatWindow.render(appUsr, GroupChannel.getGeneralGroup().id));
+			//return ok(views.html.chatWindow.render(appUsr, GroupChannel.getGeneralGroup().id));
 		}else{
 			session().remove(Constants.LOGGED_IN_USER_ID);
 			return redirect(routes.Application.index());
+			//return redirect(routes.LoginController.processLogout());
+			
 		}	
 	}
 	

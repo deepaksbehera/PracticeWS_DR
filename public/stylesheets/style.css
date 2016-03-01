@@ -20,7 +20,7 @@ body {
 .people-list {
   width: 15%;
   float: left;
-height:94vh
+height:93vh
 }
 .people-list .search {
   padding: 0px;
@@ -73,7 +73,7 @@ height:94vh
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
   color: #434651;
-  height:94vh;
+  height:92vh;
 }
 .chat .chat-header {
   padding: 20px;

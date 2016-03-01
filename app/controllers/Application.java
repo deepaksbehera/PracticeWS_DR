@@ -8,7 +8,11 @@ import views.html.*;
 public class Application extends Controller {
 
     public Result index() {
-        return ok(index.render("Your new application is ready."));
+		if(LoginController.getLoggedInUser() != null ){
+			return redirect(routes.LoginController.getDashBoard());
+		}else{
+			return ok(index.render("Your new application is ready."));
+		}
     }
 
 }
