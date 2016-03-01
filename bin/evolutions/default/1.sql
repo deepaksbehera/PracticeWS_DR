@@ -22,10 +22,13 @@ create table group_channel (
 
 create table messages (
   id                        bigserial not null,
-  messgae                   varchar(255),
+  messgae                   TEXT,
+  send_on                   timestamp,
   send_to_id                bigint,
   send_by_id                bigint,
   is_message_personal       boolean,
+  is_seen                   boolean,
+  is_deleted                boolean,
   group_channel_id          bigint,
   created_on                timestamp not null,
   last_update               timestamp not null,

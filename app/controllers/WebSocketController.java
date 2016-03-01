@@ -9,7 +9,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import actors.ChatRoom;
 import models.AppUser;
-import models.Message;
+import models.GroupChannel;
+import models.Messages;
 import play.Logger;
 import play.libs.Json;
 import play.mvc.Controller;
@@ -46,12 +47,12 @@ public class WebSocketController extends Controller {
 	        };
 	    }
 	    public Result getMessages(String type, Long id){
-	    	List<Message> msgList = new LinkedList<Message>();
+	    	List<Messages> msgList = new LinkedList<Messages>();
 	    	AppUser loginUser  = LoginController.getLoggedInUser();
 	    	if(type.trim().equals(Constants.DIRECT_MESSAGE)){
-	    		msgList = ChatRoom.getMessages(true, loginUser, AppUser.find.byId(id));
+	    		msgList = Messages.getPersonalMessages(loginUser, AppUser.find.byId(id));
 	    	}else{
-	    		
+	    		msgList = Messages.getGroupMessages(loginUser, GroupChannel.find.byId(id));
 	    	}
 	    	Map<Long,String> messageMap = new LinkedHashMap<Long,String>();
 	    	msgList.stream().forEach(message -> {

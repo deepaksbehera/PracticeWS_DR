@@ -12,5 +12,6 @@ public class Constants {
 	
 	public static final String GROUP_MESSAGE = "GROUP";
 	public static final String DIRECT_MESSAGE = "DIRECT";
+	public static final String CRON_MESSAGE = "CRON";
 
 }

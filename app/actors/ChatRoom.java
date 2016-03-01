@@ -1,7 +1,6 @@
 
 package actors;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,18 +10,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import com.avaje.ebean.Expr;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import actors.OnlineActor.Cron;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
 import akka.pattern.Patterns;
 import models.AppUser;
-import models.Message;
+import models.GroupChannel;
+import models.Messages;
 import play.Logger;
 import play.libs.Akka;
 import play.libs.F.Callback;
@@ -44,7 +44,7 @@ public class ChatRoom extends UntypedActor {
 	static {
 		Akka.system().scheduler().schedule(
 				Duration.create(0, TimeUnit.MILLISECONDS), //Initial delay 0 milliseconds
-				Duration.create(10,TimeUnit.SECONDS),     //Frequency seconds
+				Duration.create(21,TimeUnit.SECONDS),     //Frequency seconds
 				defaultRoom, 
 				new Cron(),
 				Akka.system().dispatcher(),
@@ -117,14 +117,22 @@ public class ChatRoom extends UntypedActor {
 		}
 	}
 	
-	private static List<WebSocket.Out<JsonNode>> connections = new ArrayList<WebSocket.Out<JsonNode>>();
 	public static Map<Long, WebSocket.Out<JsonNode>> individualConnectionMap = new HashMap<Long, WebSocket.Out<JsonNode>>();
 	public static Set<Long> onlineAppusers = new HashSet<Long>();
-	public static Map<Long, WebSocket.Out<JsonNode>> groupConnectionMap = new HashMap<Long, WebSocket.Out<JsonNode>>();
+	  public static Map<Long, List<Long>> groupConnectionMap = ChatRoom.getGroupMap();
+	    
+	    public static Map<Long, List<Long>> getGroupMap(){
+	    	Map<Long, List<Long>> groupConnectionMap = new HashMap<Long, List<Long>>();
+	    	GroupChannel.find.all().stream().forEach(group -> {
+	    		List<Long> appUserIdList = group.appUserList.stream().map(appUser -> appUser.id).collect( Collectors.toList() );
+	    		groupConnectionMap.put(group.id, appUserIdList);
+	    	});
+	    	return groupConnectionMap;
+	    }
 	   
 	@Override
 	public void onReceive(final Object message) throws Exception {
-		Logger.info("Cron is Running");
+		Logger.info("on recive is called");
 		if(message instanceof Join) {
 			// Received a Join message
 			final Join join = (Join)message;
@@ -140,10 +148,12 @@ public class ChatRoom extends UntypedActor {
 			// Received a Talk message
 			final Talk talk = (Talk)message;
 			if(talk.msgType.equals(Constants.DIRECT_MESSAGE)){
+				Logger.info("message type is direct");
 				notifyIndividual(talk.content,talk.msgToId,talk.msgById);
 			}
 			if(talk.msgType.equals(Constants.GROUP_MESSAGE)){
-				//notifyIndividual(talk.content,talk.msgToId,talk.msgById);
+				Logger.info("message type is group");
+				notifyGroupMembers(talk.content,talk.msgToId,talk.msgById);
 				
 			}
 		} else if(message instanceof Quit)  {
@@ -157,19 +167,57 @@ public class ChatRoom extends UntypedActor {
 			unhandled(message);
 		}
 	}
-	
 	  // Iterate connection list and write incoming message
-    public static void notifyAll(JsonNode event){
-        for (WebSocket.Out<JsonNode> out : connections) {
-        	//Logger.info("notify all is called----"+message);
-        	Logger.info("notify all is called----");
-        	//out.write(message);
-        }
+    public static void notifyGroupMembers(String content, Long toGroupId, Long byId){
+    	GroupChannel group = GroupChannel.find.byId(toGroupId);
+    	AppUser loginUser = AppUser.find.byId(byId);
+    	Logger.info("notify All is called----"+group.name+" By User : "+loginUser.name);
+    	Messages message = new Messages();
+		message.messgae = content.trim();
+		message.sendOn = new Date();
+		message.sendBy = loginUser;
+		message.isMessagePersonal = Boolean.FALSE;
+		message.groupChannel = group;
+		message.save();
+    	
+		if(groupConnectionMap.containsKey(toGroupId)){
+			Logger.info("Group Available");
+			groupConnectionMap.get(toGroupId).stream().forEach(groupMemberId -> {
+				if(individualConnectionMap.containsKey(groupMemberId)){
+					if(groupMemberId.equals(loginUser.id)){
+						//Notify to messageBy user
+						WebSocket.Out<JsonNode> outReverse  = individualConnectionMap.get(groupMemberId);
+						String messageDivRev = views.html.messageTemplate.render(message, true).toString();
+						
+						final ObjectNode returnEeventRev = Json.newObject();
+						//returnEeventRev.put("messageKind", "reply");
+						returnEeventRev.put("toId", toGroupId);
+						returnEeventRev.put("byId", byId);
+						returnEeventRev.put("messageKind", "myMsg");
+						returnEeventRev.put("messageType", Constants.GROUP_MESSAGE);
+						returnEeventRev.put("messageContent", messageDivRev);
+						outReverse.write(returnEeventRev);
+					}else{
+						//To other user
+						WebSocket.Out<JsonNode> out  = individualConnectionMap.get(groupMemberId);
+						String messageDiv = views.html.messageTemplate.render(message, false).toString();
+						
+						final ObjectNode returnEevent = Json.newObject();
+						//returnEevent.put("messageKind", "reply");
+						returnEevent.put("toId", toGroupId);
+						returnEevent.put("byId", byId);
+						returnEevent.put("messageKind", "othersMsg");
+						returnEevent.put("messageType", Constants.GROUP_MESSAGE);
+						returnEevent.put("messageContent", messageDiv);
+						out.write(returnEevent);
+					}
+				}
+			});
+		}
     }
-    
-	public static void notifyIndividual(String content, Long toId, Long byId){
+	/*public static void notifyIndividual(String content, Long toId, Long byId){
 		Logger.info("notify Individual is called----");
-			Message message = new Message();
+			Messages message = new Messages();
 			message.messgae = content.trim();
 			message.sendOn = new Date();
 			message.sendTo = AppUser.find.byId(toId);
@@ -195,14 +243,54 @@ public class ChatRoom extends UntypedActor {
 				returnEeventRev.put("messageContent", messageDivRev);
 				outReverse.write(returnEeventRev);
 			}
+	    }*/
+		public static void notifyIndividual(String content, Long toId, Long byId){
+			Logger.info("notify Individual is called----");
+			Messages message = new Messages();
+			message.messgae = content.trim();
+			message.sendOn = new Date();
+			message.sendTo = AppUser.find.byId(toId);
+			message.sendBy = AppUser.find.byId(byId);
+			message.isMessagePersonal = Boolean.TRUE;
+			message.save();
+			
+			if(individualConnectionMap.containsKey(toId)){
+				//To other user
+				WebSocket.Out<JsonNode> out  = individualConnectionMap.get(toId);
+				String messageDiv = views.html.messageTemplate.render(message, false).toString();
+				
+				final ObjectNode returnEevent = Json.newObject();
+				returnEevent.put("messageKind", "othersMsg");
+				returnEevent.put("toId", toId);
+				returnEevent.put("byId", byId);
+				returnEevent.put("messageType", Constants.DIRECT_MESSAGE);
+				returnEevent.put("messageContent", messageDiv);
+				out.write(returnEevent);
+			}
+			if(individualConnectionMap.containsKey(byId)){
+				//Notify to messageBy user
+				WebSocket.Out<JsonNode> outReverse  = individualConnectionMap.get(byId);
+				String messageDivRev = views.html.messageTemplate.render(message, true).toString();
+				
+				final ObjectNode returnEeventRev = Json.newObject();
+				returnEeventRev.put("messageKind", "myMsg");
+				returnEeventRev.put("toId", toId);
+				returnEeventRev.put("byId", byId);
+				returnEeventRev.put("messageType", Constants.DIRECT_MESSAGE);
+				returnEeventRev.put("messageContent", messageDivRev);
+				outReverse.write(returnEeventRev);
+				
+			}
 	    }
 
 		// Members of this room.
 	public void runCron(){
 		for(final WebSocket.Out<JsonNode> channel: individualConnectionMap.values()) {
+			Logger.info("Cron");
 			final ObjectNode event = Json.newObject();
-			event.put("kind", "cron");
-			event.put("message", "Cron to keep chat connection alive");
+			event.put("messageType", Constants.CRON_MESSAGE);
+			event.put("messageKind", "cron");
+			event.put("messageContent", "Cron to keep chat connection alive");
 			channel.write(event);
 		}
 	}
@@ -224,10 +312,10 @@ public class ChatRoom extends UntypedActor {
 	    return cal.getTime();
 	}
 	
-	public static List<Message> getMessages(Boolean isMsgPersonal, AppUser loginUser, AppUser requestForUser){
-		List<Message> msgList = new LinkedList<Message>();
+	public static List<Messages> getMessages(Boolean isMsgPersonal, AppUser loginUser, AppUser requestForUser){
+		List<Messages> msgList = new LinkedList<Messages>();
 		if(isMsgPersonal){
-			msgList = Message.find.where().or(
+			msgList = Messages.find.where().or(
 					Expr.and(Expr.eq("sendBy", loginUser), Expr.eq("sendTo", requestForUser)), 
 					Expr.and(Expr.eq("sendBy", requestForUser), Expr.eq("sendTo", loginUser))).orderBy("sendOn").findList();
 		}else{
@@ -235,275 +323,10 @@ public class ChatRoom extends UntypedActor {
 		}
 		return msgList;
 	}
-	/*public void notifyTo(final Message message){
-	final WebSocket.Out<JsonNode> channel = members.get(message.sendTo.id);
-	//String returnMessage = views.html.patient.returnMessage.render(message).toString();
-	play.Logger.info("toUser not available (webscoket not created)");
-	// message.messageTo.id=null it means to user not available(isviewed=flase)
-	if(channel!=null){
-		//message.messageTo.id!=null means touser is available (must check active clientID)
-		final ObjectNode event = Json.newObject();
-		event.put("messageId",message.id);
-		event.put("kind", "message");
-		event.put("direction", "messageTo");
-		//event.put("fromUserId",String.valueOf(message.messageBy.id));
-	//	event.put("toUserId",String.valueOf(message.messageTo.id));
-		//event.put("user",AppUser.find.byId(message.messageBy.id).userId);
-		//event.put("role",String.valueOf(message.role.toString()));
-		//event.put("message", messagePage);
-		//event.put("messageBody",message.description);
-		channel.write(event);
-	}
-//	String returnMessage1 = views.html.patient.returnMessage.render(message).toString();
-	//play.Logger.debug("myid:"+message.messageBy.id);
-	final WebSocket.Out<JsonNode> mychannel = members.get(message.sendTo.id);
-	if(mychannel!=null){
-		final ObjectNode event = Json.newObject();
-		event.put("messageId",message.id);
-		event.put("kind", "message");
-		event.put("direction", "messageBy");
-		//event.put("fromUserId",String.valueOf(message.messageBy.id)); //this i think not required
-		//event.put("user",AppUser.find.byId(message.messageBy.id).userId);
-		//event.put("role",String.valueOf(message.role.toString()));
-		//event.put("message", messagePage);
-		mychannel.write(event);
-	}
-}
-public void notifyAll(final Message message){
-	// Send a Json event to all members
-	//String returnMessage = views.html.patient.returnMessage.render(message).toString();
 	
-        for(WebSocket.Out<JsonNode> channel: members.values()) {
-        	Logger.info("each channel group message"+channel);
-        	final ObjectNode event = Json.newObject();
-			event.put("messageId",message.id);
-			event.put("kind", "message");
-			event.put("direction", "messageTo");
-			event.put("fromUserId",String.valueOf(message.messageBy.id));
-			event.put("groupId",String.valueOf(message.groups.id));
-		//	event.put("groupName",Groups.find.byId((message.groups.id)).name);
-		//	event.put("toUserId",String.valueOf(message.messageTo.id));
-		//	event.put("user",AppUser.find.byId(message.messageTo.id).userId);
-			event.put("role",String.valueOf(message.role.toString()));
-			event.put("message", messagePage);
-			event.put("messageBody",message.description);
-            
-            ArrayNode m = event.putArray("members");
-            for(Long u: members.keySet()) {
-                m.add(u);
-            }
-            channel.write(event);
-        }//for
-}*/	
-private Date getDateBeforeMessageSaved(Long userId, Long toUserId,String role){
-		
-		Date previousConversationDateWithoutTime=null;
-		/*if(role != null && "USER".equalsIgnoreCase(role.toString())){
-		  Query<Message> fromMessageQuery = Message.find.where().eq("messageBy.id", userId).eq("messageTo.id", toUserId).eq("role",Role.USER).order("createdOn desc").setMaxRows(1);
-		  Query<Message> toMessageQuery = Message.find.where().eq("messageBy.id", toUserId).eq("messageTo.id", userId).eq("role",Role.USER).order("createdOn desc").setMaxRows(1);
-		
-		  
-		  Message fromMessage = fromMessageQuery!=null ? fromMessageQuery.findUnique():null;
-		  Message toMessage =  toMessageQuery!=null ? toMessageQuery.findUnique():null;
-		  Logger.info("fromMessage------------->"+fromMessage);
-		  Logger.info("toMessage--------------->"+toMessage);
-		  if(fromMessage!=null || toMessage!=null ) {//means no conversation message between two usres
-			Date previousConversationDateWithTime = null;
-				Date fromDate = null;
-				Date toDate = null;
-				if (fromMessage != null) {
-					// Logger.info("fromMessage createdOn"+fromMessage.createdOn);
-					toDate = fromMessage.createdOn;
-				}
-				if (toMessage != null) {
-					// Logger.info("fromMessage createdOn"+toMessage.createdOn);
-					fromDate = toMessage.createdOn;
-				}
-				
-				if (fromDate != null && toDate!=null ) {
-					if(fromDate.before(toDate)){
-						previousConversationDateWithTime = toDate;
-					}else{
-						previousConversationDateWithTime = fromDate;
-					}
-				}else{
-					if (fromDate != null ) {
-						previousConversationDateWithTime = fromDate;
-					}
-					if (toDate != null ) {
-						previousConversationDateWithTime = toDate;
-					}
-				}
+	public static class Cron{
 
-				
-
-				Logger.info("previousConversationDateWithTime------------------------------->"+ previousConversationDateWithTime);
-				previousConversationDateWithoutTime = getDateWithoutTime(previousConversationDateWithTime);
-			  return previousConversationDateWithoutTime;
-		  }else{
-			return previousConversationDateWithoutTime=getDateWithoutTime(getYesterdayDate(new Date()));  
-		  }
-		
-		}else 	if(role != null && "GROUP".equalsIgnoreCase(role.toString())){
-			 Query<Message> messageQuery = Message.find.where().eq("groups.id",toUserId).eq("role",Role.GROUP).order("createdOn desc").setMaxRows(1);
-			 Message message = messageQuery.findUnique();
-			// Logger.info("GROUP messge"+message);;
-			 if(message!=null){ //means no conversation message between two Users
-			  Date previousConversationDateWithTime = message.createdOn;
-			//  Logger.info(previousConversationDateWithTime+"before convert without time");
-			  previousConversationDateWithoutTime =getDateWithoutTime(previousConversationDateWithTime) ;
-			//  Logger.info(previousConversationDateWithoutTime+"previousConversationDateWithoutTime in Group");
-			 }else{
-				 return previousConversationDateWithoutTime=getDateWithoutTime(getYesterdayDate(new Date()));  
-			  }
-		}*/
-		return previousConversationDateWithoutTime;
-	
-	}	
-	private String getResultPage(Date beforeDate,Message lastMessage) {
-		String returnHtmlPage="";
-	/*	Date todayDateWithoutTime=getDateWithoutTime(new Date()) ;
-		//Logger.info(beforeDate+"----**************************8----"+todayDateWithoutTime);
-		// compare previousConversationDate and today date .
-		if(beforeDate.before(todayDateWithoutTime)){
-			//two dates are different means create map with message showMessagePage 
-			final ArrayList<Message> messageSet = new ArrayList<Message>();
-			LinkedHashMap<Date, ArrayList<Message>> dateWiseMessageMap = new LinkedHashMap<Date, ArrayList<Message>>();
-			messageSet.add(lastMessage);
-			try {
-				dateWiseMessageMap.put(new SimpleDateFormat("yyyy-MM-dd").parse(lastMessage.createdOn.toString()),messageSet);
-				//Logger.info(dateWiseMessageMap+"getDateWiseMessageMap:ChatRoom");
-				returnHtmlPage = views.html.showMessage.render(dateWiseMessageMap,1l).toString();
-			} catch (ParseException e) {
-				Logger.info("date not parse :getDateWiseMessageMap:ChatRoom");
-				e.printStackTrace();
-			}
-		}else{
-			returnHtmlPage = views.html.patient.returnMessage.render(lastMessage).toString();
-		}*/
-		return returnHtmlPage;
 	}
-
-	 public void saveGroupNotification(Message message){
-	    	/*List<AppUser> appUserList  = message.groups.userList;
-	    	for(AppUser appUser : appUserList){
-	    		if(!(appUser.id == message.sendBy.id)){
-	    		Notification notification = new Notification();
-	    		notification.messageBy = message.messageBy;
-	    		notification.messageTo = appUser;
-	    		notification.toGroup = 	Groups.find.byId(message.groups.id);
-	    		
-	    		notification.isViewed = false;
-	    		notification.role = Role.GROUP;
-	    		notification.message=message;
-	    		notification.save();
-	    	}
-	    	}*/
-	    }
-	 /*Message message1 = new Message();
-		message1.messgae = talk.content;
-		
-		message1.sendTo = AppUser.find.byId(talk.msgToId);
-		message1.save();
-		Logger.info(message1+"<<<<<<<<<after msg saved");*/
-//		notifyTo(message1);
-			/*Messages message1 = new Messages();
-			message1.description = talk.text;
-			message1.description.trim();
-			message1.messageBy = AppUser.find.byId(talk.userId);
-		
-			
-			if(talk.role.equalsIgnoreCase(String.valueOf(Role.USER))){
-				message1.messageTo = AppUser.find.byId(talk.toUserId);
-				message1.role = Role.USER;
-			 }else if(talk.role.equalsIgnoreCase(String.valueOf(Role.GROUP))){
-				 message1.groups = Groups.find.byId(talk.toUserId);
-				 message1.role = Role.GROUP;
-			}
-			
-			//before we must write Line()
-			Date date=getDateBeforeMessageSaved(talk.userId,talk.toUserId,talk.role);
-			Logger.info("message saved");
-			message1.save();
-			play.Logger.info("message sucessfully stored  message id :"+message1);
-			String messagePage=getResultPage(date,message1);
-			if(message1.role !=null && "USER".equalsIgnoreCase(message1.role.toString())){
-			 notifyTo(message1,messagePage);
-			}
-			else if("GROUP".equalsIgnoreCase(message1.role.toString())){
-				notifyAll(message1,messagePage);
-				saveGroupNotification(message1);
-			}
-
-		} else if(message instanceof Quit)  {
-			// Received a Quit message
-			final Quit quit = (Quit)message;
-			members.remove(quit.userId);
-			//	notifyAll("quit", quit.userId, "has left the room");
-		} else if(message instanceof Cron)  {
-			runCron();
-		}  else {
-			unhandled(message);
-		}*/
-	 // Send a Json event to all members
-/*    public void notifyAll(String kind, String user, String text) {
-        for(WebSocket.Out<JsonNode> channel:members.values()) {
-            ObjectNode event = Json.newObject();
-            
-            event.put("kind", kind);
-            event.put("user", AppUser.find.byId(Long.parseLong(user)).name);
-            event.put("message",text);
-     
-            ArrayNode m = event.putArray("members");
-            for(Long member: members.keySet()) {
-                m.add(member);
-            }
-            channel.write(event);
-        }
-    }*/
-		
-		/*public void runCron(){
-			for(final WebSocket.Out<JsonNode> channel: members.values()) {
-				final ObjectNode event = Json.newObject();
-				event.put("kind", "cron");
-				event.put("message", "Cron to keep chat connection alive");
-				channel.write(event);
-			}
-		}*/
-		
-	/*	@Override
-		public void onReceive(final Object message) throws Exception {
-			Logger.info(message+"<<<<<<<<<<<<<on receive is called");
-			if(message instanceof Join) {
-				// Received a Join message
-				final Join join = (Join)message;
-				// Check if this username is free.
-				if(members.containsKey(join.msgById)) {
-					getSender().tell("OK",getSelf());
-				} else {
-					members.put(join.msgById, join.channel);
-					getSender().tell("OK",getSelf());
-				}
-
-			} else if(message instanceof Talk)  {
-				// Received a Talk message
-				final Talk talk = (Talk)message;
-				
-				notifyIndividual(talk.content,talk.msgToId,talk.msgById);
-				
-				} else if(message instanceof Quit)  {
-					// Received a Quit message
-					final Quit quit = (Quit)message;
-					members.remove(quit.userId);
-					//	notifyAll("quit", quit.userId, "has left the room");
-				} else if(message instanceof Cron)  {
-					runCron();
-				}  else {
-					unhandled(message);
-				}
-		}*/
-
-
 	
 }
 
