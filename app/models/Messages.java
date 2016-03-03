@@ -1,15 +1,22 @@
 package models;
 
+import java.io.UnsupportedEncodingException;
+import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
 import com.avaje.ebean.Expr;
 import com.avaje.ebean.Model;
+
+import utils.Constants;
 
 @Entity
 public class Messages extends BaseEntity{
@@ -53,6 +60,24 @@ public class Messages extends BaseEntity{
 			msgList = Messages.find.where().eq("groupChannel", group).orderBy("sendOn").setMaxRows(5).findList();
 		}
 		return msgList;
+	}
+	
+	public void setEncodedMessage(final String messageText){
+		try {
+			this.messgae = Base64.getEncoder().encodeToString(messageText.getBytes("utf-8"));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public String getDecoadedMessage(){
+		try{
+	         byte[] base64decodedBytes = Base64.getDecoder().decode(this.messgae);
+	         return new String(base64decodedBytes, "utf-8");
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return "";
 	}
 	
 }

@@ -24,6 +24,7 @@ $(function(){
     		}else{
     			var activeSelect = $('.directMsgs .clickSection.active');
     			if(activeSelect.attr('msg-to-id') == msgById){
+    				if($('#message-data'))
     				$('#message-data').append(data.messageContent);
     			}else{
     				var count = parseInt($('.directMsgs .clickSection[msg-to-id="'+msgById+'"]').find('.badge').html());

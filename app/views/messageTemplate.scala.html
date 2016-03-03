@@ -1,44 +1,22 @@
 @(message : models.Messages, isMyMessage : Boolean)
 @if(isMyMessage){
-<li class="clearfix">
-   <div class="message-data align-right">
+<li class="clearfix message-li" id="message-@message.id">
+   <div class="message-data align-right dateAndName">
      <span class="message-data-time" >@message.sendOn.format("dd-MM-yyyy hh:mm:ss")</span> &nbsp; &nbsp;
      <span class="message-data-name" >@message.sendBy.name</span> <i class="fa fa-circle me"></i>
    </div>
    <div class="message other-message float-right">
-     @message.messgae
+     @message.getDecoadedMessage
    </div>
 </li>
 }else{
-<li>
-	 <div class="message-data">
+<li class="message-li" id="message-@message.id">
+	 <div class="message-data dateAndName">
 	   <span class="message-data-name"><i class="fa fa-circle online"></i>@message.sendBy.name</span>
 	   <span class="message-data-time">@message.sendOn.format("dd-MM-yyyy hh:mm:ss")</span>
 	 </div>
 	 <div class="message my-message">
-	   @message.messgae
+	   @message.getDecoadedMessage
 	 </div>
 </li>
 }
-
-
-@*<li class="media">
-     <div class="media-body">
-         <div class="media">
-             <a href="#" class="pull-left">
-             	@if(isMyMessage){
-                 	<img src="http://placehold.it/50/FA6F57/fff&text=ME" class="media-object img-circle ">
-             	}else{
-             		<img src="http://placehold.it/50/55C1E7/fff&text=U" class="media-object img-circle ">
-             	}
-             </a>
-             <div class="media-body">
-                 @message.messgae
-                 <br>
-                <small class="text-muted">@message.sendBy.name | @message.sendOn.format("dd-MM-yyyy hh:mm:ss") </small>
-                 <hr>
-             </div>
-         </div>
-
-     </div>
-</li>*@

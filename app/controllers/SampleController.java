@@ -12,18 +12,22 @@ public class SampleController extends Controller{
 		
 			AppUser appUser1  = new AppUser();
 			appUser1.name = "Deepak";
+			appUser1.userName = "Deepak";
 			appUser1.save();
 			
 			AppUser appUser2  = new AppUser();
 			appUser2.name = "Rupesh";
+			appUser2.userName = "Rupesh";
 			appUser2.save();
 			
 			AppUser appUser3  = new AppUser();
 			appUser3.name = "SunilKumar";
+			appUser3.userName = "SunilKumar";
 			appUser3.save();
 			
 			AppUser appUser4  = new AppUser();
 			appUser4.name = "Amol";
+			appUser4.userName = "Amol";
 			appUser4.save();
 			
 			GroupChannel channel = new GroupChannel();

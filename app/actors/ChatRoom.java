@@ -75,7 +75,7 @@ public class ChatRoom {
     	AppUser loginUser = AppUser.find.byId(byId);
     	Logger.info("notify All is called----"+group.name+" By User : "+loginUser.name);
     	Messages message = new Messages();
-		message.messgae = content.trim();
+		message.setEncodedMessage(content.trim());
 		message.sendOn = new Date();
 		message.sendBy = loginUser;
 		message.isMessagePersonal = Boolean.FALSE;
@@ -121,7 +121,7 @@ public class ChatRoom {
     public static void notifyIndividual(String content, Long toId, Long byId){
 		Logger.info("notify Individual is called----");
 		Messages message = new Messages();
-		message.messgae = content.trim();
+		message.setEncodedMessage(content.trim());
 		message.sendOn = new Date();
 		message.sendTo = AppUser.find.byId(toId);
 		message.sendBy = AppUser.find.byId(byId);

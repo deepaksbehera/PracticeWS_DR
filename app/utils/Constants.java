@@ -12,5 +12,7 @@ public class Constants {
 	
 	public static final String GROUP_MESSAGE = "GROUP";
 	public static final String DIRECT_MESSAGE = "DIRECT";
+	
+	public static final String ENCRIPTION_KEY = "dAtAbAsE98765432";
 
 }

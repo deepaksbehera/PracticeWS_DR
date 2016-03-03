@@ -1,58 +1,80 @@
 @(appUser : models.AppUser, generalGroupId : Long)
 @main("Welcome To Chat World"){
-<div class="container">
-	<div class="col-md-8">
-	        <div class="panel panel-info">
-	            <div class="panel-heading" id="message-room-name">
-	                GENERAL
-	            </div>
-	            <div class="panel-body">
-					<ul class="media-list" id="message-data">
-                         @for(message <- models.Messages.getGroupMessages(appUser, GroupChannel.find.byId(generalGroupId))){
-                         	@messageTemplate(message, message.sendBy.id.equals(appUser.id))	
-                         }
-	                </ul>
-	            </div>
-	            <div class="panel-footer">
-	                <div class="input-group">
-	                		<input type="hidden" id="msgTypeVal" value="@utils.Constants.GROUP_MESSAGE">
-	                		<input type="hidden" id="msgById" value="@appUser.id">
-	                		<input type="hidden" id="msgToId" value="@generalGroupId">
-                          <input type="text" placeholder="Enter Message" class="form-control" id="messageBox">
-                          <span class="input-group-btn">
-                              <button type="button" class="btn btn-info" id="sendMessage">SEND</button>
-                          </span>
-	                 </div>
-	            </div>
-	        </div>
-    </div>
-	<div class="col-md-4">
-		<div class="panel panel-info">
-            <div class="panel-heading">
-				GROUPS
-			</div>
-			<div class="panel-body groupMsgs">
-				@for(group <- appUser.getAppUserGroups){
-					<div>
-						<a href="#" msg-to-id="@group.id" msg-type="@utils.Constants.GROUP_MESSAGE" class="clickSection @if(group.id.equals(generalGroupId)){active}">@group.name <span class="badge">0</span></a>
-					</div>
-				}
-			</div>
-		</div>
-		<div class="panel panel-info">
-		     <div class="panel-heading">
-		     	DIRECT MESSAGES
-		     </div>
-		     <div class="panel-body directMsgs">
-				@for(user <- AppUser.find.where().ne("id", appUser.id).findList()){
-					<div>
-						<a href="#" msg-to-id="@user.id" msg-type="@utils.Constants.DIRECT_MESSAGE" class="clickSection">@user.name <span class="badge">0</span></a>
-					</div> 
-				}
+
+  <div class="mainchat clearfix">
+    <div class="people-list" id="people-list">
+      <div class="search">
+        <input type="text" placeholder="search"/>
+        <i class="fa fa-search"></i>
+      </div>
+      		<div class="panel-heading ">
+				Channels
 			 </div>
-		</div>
-	</div>
-</div>
+		    <ul class="list">
+		    <span class="groupMsgs">
+		     @for(group <- appUser.getAppUserGroups){
+		     	 <li class="clearfix clickSection @if(group.id.equals(generalGroupId)){active}" 
+		     	 	msg-to-id="@group.id" msg-type="@utils.Constants.GROUP_MESSAGE" style="cursor:pointer;">
+		          <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01.jpg" alt="avatar" />
+		          <div class="about">
+		            <div class="name">@group.name <span class="badge">0</span></div>
+		            <div class="status">
+		              <i class="fa fa-circle online"></i> online
+		            </div>
+		          </div>
+		        </li>
+    	     }
+    	     </span>
+    	      <div class="panel-heading">
+				Direct Messages
+			 </div>
+			 <span class="directMsgs">
+		      @for(user <- AppUser.find.where().ne("id", appUser.id).findList()){
+		        <li class="clearfix clickSection" msg-to-id="@user.id" 
+		        style="cursor:pointer;" msg-type="@utils.Constants.DIRECT_MESSAGE">
+		          <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01.jpg" alt="avatar" />
+		          <div class="about">
+		            <div class="name">@user.name <span class="badge">0</span></div>
+		            <div class="status">
+		              <i class="fa fa-circle online"></i> online
+		            </div>
+		          </div>
+		        </li>
+		      }
+		      </span>
+	      	</ul>
+    </div>
+    
+    <div class="chat">
+      <div class="chat-header clearfix">
+        <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01_green.jpg" alt="avatar" />
+        <div class="chat-about">
+          <div class="chat-with">Chat with <span id="message-room-name">GENERAL</span></div>
+          <div class="chat-num-messages">already 1 902 messages</div>
+        </div>
+        <i class="fa fa-star"></i>
+      </div> <!-- end chat-header -->
+      
+      <div class="chat-history">
+        <ul id="message-data">
+	        @for(message <- models.Messages.getGroupMessages(appUser, GroupChannel.find.byId(generalGroupId))){
+	        	@messageTemplate(message, message.sendBy.id.equals(appUser.id))	
+	        }
+        </ul>
+      </div> <!-- end chat-history -->
+      
+      <div class="chat-message clearfix">
+      	<input type="hidden" id="msgTypeVal" value="@utils.Constants.GROUP_MESSAGE">
+   		<input type="hidden" id="msgById" value="@appUser.id">
+   		<input type="hidden" id="msgToId" value="@generalGroupId">
+        <textarea name="message-to-send" id="messageBox" placeholder ="Type your message" rows="3"></textarea>
+        <i class="fa fa-file-o"></i> &nbsp;&nbsp;&nbsp;
+        <i class="fa fa-file-image-o"></i>
+        <button id="sendMessage" class="btn btn-info" >Send</button>
+      </div> <!-- end chat-message -->
+    </div> <!-- end chat -->
+  </div> <!-- end container -->
+
 <script type="text/javascript" charset="utf-8" src="@routes.WebSocketController.loadChatWSJs(appUser.id)"></script>
 <script>
 $(document).on('click','.clickSection',function(e){
@@ -63,7 +85,7 @@ $(document).on('click','.clickSection',function(e){
 	var msgToId = $(this).attr('msg-to-id');
 	var messageDataDiv = $('#message-data');
 	item.find('.badge').html('0');
-	console.log(name+">>"+msgType+">>"+msgToId);
+	//console.log(name+">>"+msgType+">>"+msgToId);
 	$('#message-room-name').html(name);
 	$('#msgTypeVal').val(msgType);
 	$('#msgToId').val(msgToId);
@@ -82,4 +104,3 @@ $(document).on('click','.clickSection',function(e){
 
 </script>
 }
- 
