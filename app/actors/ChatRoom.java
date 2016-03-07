@@ -6,11 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.persistence.ManyToOne;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import models.AppUser;
 import models.GroupChannel;
+import models.MessageNotification;
 import models.Messages;
 import play.Logger;
 import play.libs.Json;
@@ -65,7 +68,9 @@ public class ChatRoom {
         in.onClose(new Callback0(){
             public void invoke(){
             	Logger.info("A connection closed");
+            	onlineUserConnectionMap.remove(appUserId);
               // Messages.notifyAll("A connection closed");
+            	
             }
         });
     }
@@ -113,18 +118,24 @@ public class ChatRoom {
 						returnEevent.put("messageContent", messageDiv);
 						out.write(returnEevent);
 					}
+				}else{
+					MessageNotification.createGroupNotification(AppUser.find.byId(groupMemberId), group);
 				}
 			});
+		}else{
+			Logger.debug("Group is not available ");
 		}
     }
     
     public static void notifyIndividual(String content, Long toId, Long byId){
 		Logger.info("notify Individual is called----");
+		final AppUser sendTo = AppUser.find.byId(toId);
+		final AppUser sendBy = AppUser.find.byId(byId);
 		Messages message = new Messages();
 		message.setEncodedMessage(content.trim());
 		message.sendOn = new Date();
-		message.sendTo = AppUser.find.byId(toId);
-		message.sendBy = AppUser.find.byId(byId);
+		message.sendTo = sendTo;
+		message.sendBy = sendBy;
 		message.isMessagePersonal = Boolean.TRUE;
 		message.save();
 		
@@ -140,6 +151,8 @@ public class ChatRoom {
 			returnEevent.put("messageType", Constants.DIRECT_MESSAGE);
 			returnEevent.put("messageContent", messageDiv);
 			out.write(returnEevent);
+		}else{
+			MessageNotification.createPersonalNotification(sendTo, sendBy);
 		}
 		if(onlineUserConnectionMap.containsKey(byId)){
 			//Notify to messageBy user

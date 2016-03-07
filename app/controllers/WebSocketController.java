@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import actors.ChatRoom;
 import models.AppUser;
 import models.GroupChannel;
+import models.MessageNotification;
 import models.Messages;
 import play.Logger;
 import play.libs.Json;
@@ -57,6 +58,31 @@ public class WebSocketController extends Controller {
     		}
     	});
     	return ok(Json.toJson(messageMap));
+    }
+    
+    public Result makeAllMessagesAsSeen(String type, Long id){
+    	List<MessageNotification> notificationList = new LinkedList<MessageNotification>();
+    	AppUser loginUser  = LoginController.getLoggedInUser();
+    	
+    	if(type.trim().equals(Constants.DIRECT_MESSAGE)){
+    		notificationList = MessageNotification.getPersonalUnSeenMessages(loginUser, AppUser.find.byId(id));
+    	}else{
+    		notificationList = MessageNotification.getGroupUnSeenMessages(loginUser, GroupChannel.find.byId(id));
+    	}
+    	notificationList.forEach(notification -> {
+    		notification.isSeen = Boolean.TRUE;
+    		notification.update();
+    	});
+    	return ok("");
+    }
+    
+    public Result createMessageNotification(final String msgType, final Long msgToId , final Long msgById){
+    	if(msgType.equals(Constants.DIRECT_MESSAGE)){
+    		MessageNotification.createPersonalNotification(AppUser.find.byId(msgToId), AppUser.find.byId(msgById));
+    	}else{
+    		MessageNotification.createGroupNotification(AppUser.find.byId(msgToId), GroupChannel.find.byId(msgById));
+    	}
+    	return ok("");
     }
 	
 	

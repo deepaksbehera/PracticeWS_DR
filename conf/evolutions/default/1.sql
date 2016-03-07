@@ -24,6 +24,18 @@ create table group_channel (
   constraint pk_group_channel primary key (id))
 ;
 
+create table message_notification (
+  id                        bigserial not null,
+  notification_to_id        bigint,
+  notification_from_id      bigint,
+  notification_of_group_id  bigint,
+  is_seen                   boolean,
+  is_viewed                 boolean,
+  created_on                timestamp not null,
+  last_update               timestamp not null,
+  constraint pk_message_notification primary key (id))
+;
+
 create table messages (
   id                        bigserial not null,
   messgae                   TEXT,
@@ -31,7 +43,6 @@ create table messages (
   send_to_id                bigint,
   send_by_id                bigint,
   is_message_personal       boolean,
-  is_seen                   boolean,
   is_deleted                boolean,
   group_channel_id          bigint,
   created_on                timestamp not null,
@@ -51,12 +62,18 @@ create table app_user_admin (
   app_user_id                    bigint not null,
   constraint pk_app_user_admin primary key (group_channel_id, app_user_id))
 ;
-alter table messages add constraint fk_messages_sendTo_1 foreign key (send_to_id) references app_user (id);
-create index ix_messages_sendTo_1 on messages (send_to_id);
-alter table messages add constraint fk_messages_sendBy_2 foreign key (send_by_id) references app_user (id);
-create index ix_messages_sendBy_2 on messages (send_by_id);
-alter table messages add constraint fk_messages_groupChannel_3 foreign key (group_channel_id) references group_channel (id);
-create index ix_messages_groupChannel_3 on messages (group_channel_id);
+alter table message_notification add constraint fk_message_notification_notifi_1 foreign key (notification_to_id) references app_user (id);
+create index ix_message_notification_notifi_1 on message_notification (notification_to_id);
+alter table message_notification add constraint fk_message_notification_notifi_2 foreign key (notification_from_id) references app_user (id);
+create index ix_message_notification_notifi_2 on message_notification (notification_from_id);
+alter table message_notification add constraint fk_message_notification_notifi_3 foreign key (notification_of_group_id) references group_channel (id);
+create index ix_message_notification_notifi_3 on message_notification (notification_of_group_id);
+alter table messages add constraint fk_messages_sendTo_4 foreign key (send_to_id) references app_user (id);
+create index ix_messages_sendTo_4 on messages (send_to_id);
+alter table messages add constraint fk_messages_sendBy_5 foreign key (send_by_id) references app_user (id);
+create index ix_messages_sendBy_5 on messages (send_by_id);
+alter table messages add constraint fk_messages_groupChannel_6 foreign key (group_channel_id) references group_channel (id);
+create index ix_messages_groupChannel_6 on messages (group_channel_id);
 
 
 
@@ -77,6 +94,8 @@ drop table if exists group_channel cascade;
 drop table if exists app_user_group_channel cascade;
 
 drop table if exists app_user_admin cascade;
+
+drop table if exists message_notification cascade;
 
 drop table if exists messages cascade;
 
