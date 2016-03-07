@@ -20,11 +20,11 @@ $(function(){
     	console.log(JSON.stringify(data));
     	if(msgType == "DIRECT"){
     		if(msgKind == "myMsg"){
-    			$('#message-data').append(data.messageContent);
+    			appendMsgLi(msgById, data.messageContent);
     		}else{
     			var activeSelect = $('.directMsgs .clickSection.active');
     			if(activeSelect.attr('msg-to-id') == msgById){
-    				$('#message-data').append(data.messageContent);
+    				appendMsgLi(msgById, data.messageContent);
     			}else{
     				var count = parseInt($('.directMsgs .clickSection[msg-to-id="'+msgById+'"]').find('.badge').html());
     				count++;
@@ -35,11 +35,11 @@ $(function(){
     		}
     	 }else{
     		 if(msgKind == "myMsg"){
-     			$('#message-data').append(data.messageContent);
+    			 appendMsgLi(msgById, data.messageContent);
      		}else{
      			var activeSelect = $('.groupMsgs .clickSection.active');
     			if(activeSelect.attr('msg-to-id') == msgToId){
-    				$('#message-data').append(data.messageContent);
+    				appendMsgLi(msgById, data.messageContent);
     			}else{
     				var count = parseInt($('.groupMsgs .clickSection[msg-to-id="'+msgToId+'"]').find('.badge').html());
     				count++;
@@ -81,6 +81,20 @@ $(function(){
     
     function createNotification(msgType, msgToId, msgById){
     	$.get('/create-notification/'+msgType+'/'+msgToId+'/'+msgById,function(data){}); 
+    }
+    
+    function appendMsgLi(msgById, messageContent){
+    	var lastMsgId = $('#message-data .message-li').last().attr('messageOfUser');
+    	console.log(lastMsgId+ ">append>>"+msgById);
+    	if(lastMsgId == msgById){
+    		console.log("same");
+    		
+    		$('#message-data').append(messageContent);
+    		$('#message-data .message-li').last().find('.dateAndName').remove();
+    	}else{
+    		$('#message-data').append(messageContent);
+    	}
+    	
     }
     
 });

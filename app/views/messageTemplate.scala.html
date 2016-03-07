@@ -1,6 +1,6 @@
 @(message : models.Messages, isMyMessage : Boolean, isMessageFromSameUser : Boolean)
 @if(isMyMessage){
-<li class="clearfix message-li" id="message-@message.id">
+<li class="clearfix message-li" messageOfUser="@message.sendBy.id">
 	@if(!isMessageFromSameUser){
 	   <div class="message-data align-right dateAndName">
 	     <span class="message-data-time" >@message.sendOn.format("dd-MM-yyyy hh:mm:ss")</span> &nbsp; &nbsp;
@@ -12,7 +12,7 @@
    </div>
 </li>
 }else{
-<li class="message-li" id="message-@message.id">
+<li class="message-li" messageOfUser="@message.sendBy.id">
 	@if(!isMessageFromSameUser){	
 		 <div class="message-data dateAndName">
 		   <span class="message-data-name"><i class="fa fa-circle online"></i>@message.sendBy.name</span>
