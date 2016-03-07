@@ -1,4 +1,5 @@
 @(appUser : models.AppUser, generalGroupId : Long)
+@import java.lang.Long; var prevMsgId=0L;
 @main("Welcome To Chat World"){
 
   <div class="mainchat clearfix">
@@ -37,7 +38,7 @@
 		          <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01.jpg" alt="avatar" />
 		          <div class="about">
 		          @defining(models.MessageNotification.getPersonalUnSeenMsgCount(appUser, user)){count=>
-		            <div><span class="name">@user.name </span><span class="badge">@count</span></div>
+		            <div><span class="name">@user.name</span><span class="badge">@count</span></div>
 		            }
 		            <div class="status">
 		              <i class="fa fa-circle online"></i> online
@@ -62,7 +63,8 @@
       <div class="chat-history">
         <ul id="message-data">
 	        @for(message <- models.Messages.getGroupMessages(appUser, GroupChannel.find.byId(generalGroupId))){
-	        	@messageTemplate(message, message.sendBy.id.equals(appUser.id))	
+	        	@messageTemplate(message, message.sendBy.id.equals(appUser.id), prevMsgId.equals(message.sendBy.id))	
+	        	@(prevMsgId = message.sendBy.id)
 	        }
         </ul>
       </div> <!-- end chat-history -->

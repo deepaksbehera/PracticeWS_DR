@@ -1,20 +1,24 @@
-@(message : models.Messages, isMyMessage : Boolean)
+@(message : models.Messages, isMyMessage : Boolean, isMessageFromSameUser : Boolean)
 @if(isMyMessage){
 <li class="clearfix message-li" id="message-@message.id">
-   <div class="message-data align-right dateAndName">
-     <span class="message-data-time" >@message.sendOn.format("dd-MM-yyyy hh:mm:ss")</span> &nbsp; &nbsp;
-     <span class="message-data-name" >@message.sendBy.name</span> <i class="fa fa-circle me"></i>
-   </div>
+	@if(!isMessageFromSameUser){
+	   <div class="message-data align-right dateAndName">
+	     <span class="message-data-time" >@message.sendOn.format("dd-MM-yyyy hh:mm:ss")</span> &nbsp; &nbsp;
+	     <span class="message-data-name" >@message.sendBy.name</span> <i class="fa fa-circle me"></i>
+	   </div>
+	}
    <div class="message other-message float-right">
      @message.getDecoadedMessage
    </div>
 </li>
 }else{
 <li class="message-li" id="message-@message.id">
-	 <div class="message-data dateAndName">
-	   <span class="message-data-name"><i class="fa fa-circle online"></i>@message.sendBy.name</span>
-	   <span class="message-data-time">@message.sendOn.format("dd-MM-yyyy hh:mm:ss")</span>
-	 </div>
+	@if(!isMessageFromSameUser){	
+		 <div class="message-data dateAndName">
+		   <span class="message-data-name"><i class="fa fa-circle online"></i>@message.sendBy.name</span>
+		   <span class="message-data-time">@message.sendOn.format("dd-MM-yyyy hh:mm:ss")</span>
+		 </div>
+	 }
 	 <div class="message my-message">
 	   @message.getDecoadedMessage
 	 </div>

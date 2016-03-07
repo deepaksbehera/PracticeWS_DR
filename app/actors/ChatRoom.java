@@ -94,7 +94,7 @@ public class ChatRoom {
 					if(groupMemberId.equals(loginUser.id)){
 						//Notify to messageBy user
 						WebSocket.Out<JsonNode> outReverse  = onlineUserConnectionMap.get(groupMemberId);
-						String messageDivRev = views.html.messageTemplate.render(message, true).toString();
+						String messageDivRev = views.html.messageTemplate.render(message, true, false).toString();
 						
 						final ObjectNode returnEeventRev = Json.newObject();
 						//returnEeventRev.put("messageKind", "reply");
@@ -107,7 +107,7 @@ public class ChatRoom {
 					}else{
 						//To other user
 						WebSocket.Out<JsonNode> out  = onlineUserConnectionMap.get(groupMemberId);
-						String messageDiv = views.html.messageTemplate.render(message, false).toString();
+						String messageDiv = views.html.messageTemplate.render(message, false, false).toString();
 						
 						final ObjectNode returnEevent = Json.newObject();
 						//returnEevent.put("messageKind", "reply");
@@ -142,7 +142,7 @@ public class ChatRoom {
 		if(onlineUserConnectionMap.containsKey(toId)){
 			//To other user
 			WebSocket.Out<JsonNode> out  = onlineUserConnectionMap.get(toId);
-			String messageDiv = views.html.messageTemplate.render(message, false).toString();
+			String messageDiv = views.html.messageTemplate.render(message, false, false).toString();
 			
 			final ObjectNode returnEevent = Json.newObject();
 			returnEevent.put("messageKind", "othersMsg");
@@ -157,7 +157,7 @@ public class ChatRoom {
 		if(onlineUserConnectionMap.containsKey(byId)){
 			//Notify to messageBy user
 			WebSocket.Out<JsonNode> outReverse  = onlineUserConnectionMap.get(byId);
-			String messageDivRev = views.html.messageTemplate.render(message, true).toString();
+			String messageDivRev = views.html.messageTemplate.render(message, true, false).toString();
 			
 			final ObjectNode returnEeventRev = Json.newObject();
 			returnEeventRev.put("messageKind", "myMsg");

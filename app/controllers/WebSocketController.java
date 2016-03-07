@@ -50,13 +50,13 @@ public class WebSocketController extends Controller {
     		msgList = Messages.getGroupMessages(loginUser, GroupChannel.find.byId(id));
     	}
     	Map<Long,String> messageMap = new LinkedHashMap<Long,String>();
-    	msgList.stream().forEach(message -> {
-    		if(message.sendBy.id.equals(loginUser.id)){
-    			messageMap.put(message.id, views.html.messageTemplate.render(message, true).toString());
-    		}else{
-    			messageMap.put(message.id, views.html.messageTemplate.render(message, false).toString());
-    		}
-    	});
+    	Long prevMsgId = 0L;
+    	for(Messages message : msgList){
+    		Long messageById = message.sendBy.id;
+    		messageMap.put(message.id, views.html.messageTemplate.render(message, messageById.equals(loginUser.id)
+    				, prevMsgId.equals(messageById)).toString());
+    		prevMsgId = messageById;
+    	}
     	return ok(Json.toJson(messageMap));
     }
     
