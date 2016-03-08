@@ -67,7 +67,7 @@ public class ChatRoom extends SchedulerClass{
         
         in.onClose(new Callback0(){
             public void invoke(){
-            	Logger.info("User went offline with user id : "+appUserId);
+            	Logger.error("User went offline with user id : "+AppUser.find.byId(appUserId).name);
             	onlineUserConnectionMap.remove(appUserId);
             }
         });
@@ -168,13 +168,16 @@ public class ChatRoom extends SchedulerClass{
     }
     
     public static void notifyAllWithDummyMsg(){
-    	System.out.print("\n Onlie Users Are : ");
-    	onlineUserConnectionMap.keySet().forEach(onlineUserId -> {
-			WebSocket.Out<JsonNode> outReverse  = onlineUserConnectionMap.get(onlineUserId);
-			final ObjectNode obj = Json.newObject();
-			obj.put("messageType", Constants.DUMMY_MESSAGE);
-			System.out.print(AppUser.find.byId(onlineUserId).name+ ",");
-			outReverse.write(obj);
-		});
+    	if(onlineUserConnectionMap.size() > 0){
+    		System.out.print("\n Onlie Users Are : ");
+    		onlineUserConnectionMap.keySet().forEach(onlineUserId -> {
+    			WebSocket.Out<JsonNode> outReverse  = onlineUserConnectionMap.get(onlineUserId);
+    			final ObjectNode obj = Json.newObject();
+    			obj.put("messageType", Constants.DUMMY_MESSAGE);
+    			System.out.print(AppUser.find.byId(onlineUserId).name+ ",");
+    			outReverse.write(obj);
+    		});
+    		System.out.println();
+    	}
     }
 }

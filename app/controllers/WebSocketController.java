@@ -32,10 +32,9 @@ public class WebSocketController extends Controller {
     public WebSocket<JsonNode> wsInterface(Long appUserId){
     	//Logger.info("WS iNTERFACE : "+AppUser.find.byId(appUserId).name);
         return new WebSocket<JsonNode>(){
-            
             // called when websocket handshake is done
             public void onReady(WebSocket.In<JsonNode> in, WebSocket.Out<JsonNode> out){
-            	Logger.info("websocket handshake is done of : "+AppUser.find.byId(appUserId).name);
+            	Logger.warn("websocket handshake is done of : "+AppUser.find.byId(appUserId).name);
             	ChatRoom.start(in, out, appUserId);
             }
         };   
