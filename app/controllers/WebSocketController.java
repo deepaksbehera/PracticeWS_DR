@@ -24,18 +24,18 @@ public class WebSocketController extends Controller {
 	
 
     public Result loadChatWSJs(final Long appUserId) {
-    	Logger.info("ws js is loaded");
+    	//Logger.info("ws js is loaded");
         return ok(views.js.chatws.render(appUserId));
     }
     
     // Websocket interface
     public WebSocket<JsonNode> wsInterface(Long appUserId){
-    	Logger.info("WS iNTERFACE : "+AppUser.find.byId(appUserId).name);
+    	//Logger.info("WS iNTERFACE : "+AppUser.find.byId(appUserId).name);
         return new WebSocket<JsonNode>(){
             
             // called when websocket handshake is done
             public void onReady(WebSocket.In<JsonNode> in, WebSocket.Out<JsonNode> out){
-            	Logger.info("websocket handshake is done");
+            	Logger.info("websocket handshake is done of : "+AppUser.find.byId(appUserId).name);
             	ChatRoom.start(in, out, appUserId);
             }
         };   

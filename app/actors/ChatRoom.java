@@ -22,7 +22,7 @@ import play.libs.F.Callback0;
 import play.mvc.WebSocket;
 import utils.Constants;
 
-public class ChatRoom {
+public class ChatRoom extends SchedulerClass{
 
 	/**
 	 * Websocket and utility methods
@@ -56,7 +56,7 @@ public class ChatRoom {
             	Long msgById = event.get("msgById").asLong();
             	Long msgToId = event.get("msgToId").asLong();
             	
-            	Logger.info("event---"+messageContent+">>>"+msgType+">>"+msgToId+ ">>"+msgById);
+            	//Logger.info("event---"+messageContent+">>>"+msgType+">>"+msgToId+ ">>"+msgById);
             	if(msgType.equals(Constants.DIRECT_MESSAGE)){
             		ChatRoom.notifyIndividual(messageContent, msgToId, msgById);
             	}else{
@@ -67,10 +67,8 @@ public class ChatRoom {
         
         in.onClose(new Callback0(){
             public void invoke(){
-            	Logger.info("A connection closed");
+            	Logger.info("User went offline with user id : "+appUserId);
             	onlineUserConnectionMap.remove(appUserId);
-              // Messages.notifyAll("A connection closed");
-            	
             }
         });
     }
@@ -166,7 +164,17 @@ public class ChatRoom {
 			returnEeventRev.put("messageType", Constants.DIRECT_MESSAGE);
 			returnEeventRev.put("messageContent", messageDivRev);
 			outReverse.write(returnEeventRev);
-			
 		}
+    }
+    
+    public static void notifyAllWithDummyMsg(){
+    	System.out.print("\n Onlie Users Are : ");
+    	onlineUserConnectionMap.keySet().forEach(onlineUserId -> {
+			WebSocket.Out<JsonNode> outReverse  = onlineUserConnectionMap.get(onlineUserId);
+			final ObjectNode obj = Json.newObject();
+			obj.put("messageType", Constants.DUMMY_MESSAGE);
+			System.out.print(AppUser.find.byId(onlineUserId).name+ ",");
+			outReverse.write(obj);
+		});
     }
 }

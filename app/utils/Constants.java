@@ -10,9 +10,10 @@ public class Constants {
 	public static final String EMAIL_USER_NAME ="Rupesh Patil";
 	public static final String HOST_NAME = Play.application().configuration().getString("ip.address");
 	
+	//For Message use
 	public static final String GROUP_MESSAGE = "GROUP";
 	public static final String DIRECT_MESSAGE = "DIRECT";
-	
+	public static final String DUMMY_MESSAGE = "DUMMY";
 	public static final String ENCRIPTION_KEY = "dAtAbAsE98765432";
 
 }

@@ -19,7 +19,10 @@ public class AppUser extends BaseEntity{
 	public String password;
 	
 	@Lob
-	public byte[] photo;
+	public byte[] image;
+	
+	@Lob
+	public byte[] thumbnailImage;
 	
 	public static Model.Finder<Long, AppUser> find = new Model.Finder<Long, AppUser>(AppUser.class);
 	
