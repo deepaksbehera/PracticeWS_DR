@@ -4,48 +4,48 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
-
-import javax.persistence.ManyToOne;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import akka.actor.UntypedActor;
 import models.AppUser;
 import models.GroupChannel;
 import models.MessageNotification;
 import models.Messages;
 import play.Logger;
-import play.libs.Json;
 import play.libs.F.Callback;
 import play.libs.F.Callback0;
+import play.libs.Json;
 import play.mvc.WebSocket;
 import utils.Constants;
 
-public class ChatRoom extends SchedulerClass{
-
-	/**
-	 * Websocket and utility methods
-	 */
+public class ChatRoom extends UntypedActor{
 	
-    // collect all websockets here
-   // private static List<WebSocket.Out<JsonNode>> connections = new ArrayList<WebSocket.Out<JsonNode>>();
+	public static Map<Long, WebSocket.Out<JsonNode>> onlineUserConnectionMap = new HashMap<Long, WebSocket.Out<JsonNode>>();
+	public static Map<Long, List<Long>> groupConnectionMap = ChatRoom.getGroupMap();
+	
+	public static Map<Long, List<Long>> getGroupMap(){
+		Map<Long, List<Long>> groupConnectionMap = new HashMap<Long, List<Long>>();
+		GroupChannel.find.all().stream().forEach(group -> {
+			List<Long> appUserIdList = group.appUserList.stream().map(appUser -> appUser.id).collect( Collectors.toList() );
+			groupConnectionMap.put(group.id, appUserIdList);
+		});
+		return groupConnectionMap;
+	}
+		
+	@Override
+	public void onReceive(Object obj) throws Exception {
+		if(obj.equals("DUMMY_MESSAGE")){
+			ChatRoom.notifyAllWithDummyMsg();
+		}
+		Logger.info("onReceive called : "+new Date());
+	}
     
-    public static Map<Long, WebSocket.Out<JsonNode>> onlineUserConnectionMap = new HashMap<Long, WebSocket.Out<JsonNode>>();
-    public static Map<Long, List<Long>> groupConnectionMap = ChatRoom.getGroupMap();
-    
-    public static Map<Long, List<Long>> getGroupMap(){
-    	Map<Long, List<Long>> groupConnectionMap = new HashMap<Long, List<Long>>();
-    	GroupChannel.find.all().stream().forEach(group -> {
-    		List<Long> appUserIdList = group.appUserList.stream().map(appUser -> appUser.id).collect( Collectors.toList() );
-    		groupConnectionMap.put(group.id, appUserIdList);
-    	});
-    	return groupConnectionMap;
-    }
     
     public static void start(WebSocket.In<JsonNode> in, WebSocket.Out<JsonNode> out, Long appUserId){
-    	
-        //connections.add(out);
     	onlineUserConnectionMap.put(appUserId, out);
         
         in.onMessage(new Callback<JsonNode>(){
@@ -72,6 +72,7 @@ public class ChatRoom extends SchedulerClass{
             }
         });
     }
+    
     // Iterate connection list and write incoming message
     public static void notifyGroupMembers(String content, Long toGroupId, Long byId){
     	GroupChannel group = GroupChannel.find.byId(toGroupId);
@@ -84,7 +85,6 @@ public class ChatRoom extends SchedulerClass{
 		message.isMessagePersonal = Boolean.FALSE;
 		message.groupChannel = group;
 		message.save();
-    	
 		if(groupConnectionMap.containsKey(toGroupId)){
 			Logger.info("Group Available");
 			groupConnectionMap.get(toGroupId).stream().forEach(groupMemberId -> {
@@ -136,7 +136,6 @@ public class ChatRoom extends SchedulerClass{
 		message.sendBy = sendBy;
 		message.isMessagePersonal = Boolean.TRUE;
 		message.save();
-		
 		if(onlineUserConnectionMap.containsKey(toId)){
 			//To other user
 			WebSocket.Out<JsonNode> out  = onlineUserConnectionMap.get(toId);
@@ -168,16 +167,20 @@ public class ChatRoom extends SchedulerClass{
     }
     
     public static void notifyAllWithDummyMsg(){
+    	Set<Long> onlineUserIdSet = onlineUserConnectionMap.keySet();
     	if(onlineUserConnectionMap.size() > 0){
     		System.out.print("\n Onlie Users Are : ");
     		onlineUserConnectionMap.keySet().forEach(onlineUserId -> {
     			WebSocket.Out<JsonNode> outReverse  = onlineUserConnectionMap.get(onlineUserId);
     			final ObjectNode obj = Json.newObject();
-    			obj.put("messageType", Constants.DUMMY_MESSAGE);
+    				obj.put("messageType", Constants.DUMMY_MESSAGE);
+    				obj.put("toUserId", onlineUserId);
+    				obj.put("onlineUserList", Json.toJson(onlineUserIdSet));
     			System.out.print(AppUser.find.byId(onlineUserId).name+ ",");
     			outReverse.write(obj);
     		});
     		System.out.println();
     	}
     }
+
 }

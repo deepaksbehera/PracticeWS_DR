@@ -18,9 +18,9 @@ $(function(){
     	var msgById = data.byId;
     	var msgKind = data.messageKind;
     	//console.log(JSON.stringify(data));
-    	console.log("");
+    	//console.log("");
     	if(msgType == "DUMMY"){
-    		console.log("dummy message");
+    		showOnlineAndOffline(data.onlineUserList, data.toUserId);
     	}else{
     		if(msgType == "DIRECT"){
     			if(msgKind == "myMsg"){
@@ -100,7 +100,22 @@ $(function(){
     	}else{
     		$('#message-data').append(messageContent);
     	}
-    	
+    }
+    
+    function showOnlineAndOffline(onlineUserList, toUserId){
+		console.log(onlineUserList);
+		$('.status i').removeClass('online');
+		$('.status i').addClass('offline');
+		$('.status i').html('&nbsp; Offline');
+		$.each(onlineUserList,function(index, ouser){
+			//if(!(ouser == toUserId)){
+				//console.log('#status-'+ouser);
+				$('#status-'+ouser).removeClass('offline');
+				$('#status-'+ouser).addClass('online');
+				$('#status-'+ouser).html('&nbsp; Online');
+			//}
+		});
+		console.log("dummy message");
     }
     
 });

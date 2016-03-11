@@ -1,6 +1,6 @@
 import java.util.concurrent.TimeUnit;
 
-import actors.SchedulerClass;
+import actors.ChatRoom;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import play.Application;
@@ -31,19 +31,13 @@ public class Global extends GlobalSettings{
 
 	@Override
 	public void onStart(Application application) {
-		try {
-			Class.forName("actors.SchedulerClass");
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		/*final ActorRef myActor = Akka.system().actorOf(Props.create(SchedulerClass.class));
+		final ActorRef defaultChatRoom = Akka.system().actorOf(Props.create(ChatRoom.class));
 		
 		Akka.system().scheduler().schedule( Duration.create(0,TimeUnit.MILLISECONDS), 
 											Duration.create(10, TimeUnit.SECONDS), 
-											myActor,"domyMsg", Akka.system().dispatcher(), 
+											defaultChatRoom, "DUMMY_MESSAGE", Akka.system().dispatcher(), 
 											null );
 
-		*/
 		Logger.info("Project Started");
 	}
 

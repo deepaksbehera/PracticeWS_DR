@@ -1,5 +1,6 @@
 package controllers;
 
+import actors.ChatRoom;
 import play.*;
 import play.mvc.*;
 

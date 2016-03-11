@@ -1,12 +1,10 @@
 package actors;
 
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.actor.UntypedActor;
-import play.Logger;
 import play.libs.Akka;
 import scala.concurrent.duration.Duration;
 
@@ -26,7 +24,7 @@ public class SchedulerClass extends UntypedActor{
 	@Override
 	public void onReceive(Object obj) throws Exception {
 		if(obj.equals("dummyMsg")){
-			ChatRoom.notifyAllWithDummyMsg();
+			//ChatRoom.notifyAllWithDummyMsg();
 		}
 		//Logger.info("onReceive called : "+new Date());
 	}
