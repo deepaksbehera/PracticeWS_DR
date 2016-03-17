@@ -17,6 +17,9 @@ $(function(){
     	var msgToId = data.toId;
     	var msgById = data.byId;
     	var msgKind = data.messageKind;
+    	var msgContent = data.messageContent;
+    	var msgContForNotf = data.msgContForNotf;
+    	var msgByName = data.msgByName;
     	//console.log(JSON.stringify(data));
     	//console.log("");
     	if(msgType == "DUMMY"){
@@ -24,30 +27,34 @@ $(function(){
     	}else{
     		if(msgType == "DIRECT"){
     			if(msgKind == "myMsg"){
-    				appendMsgLi(msgById, data.messageContent);
+    				appendMsgLi(msgById, msgContent);
     			}else{
     				var activeSelect = $('.directMsgs .clickSection.active');
     				if(activeSelect.attr('msg-to-id') == msgById){
-    					appendMsgLi(msgById, data.messageContent);
+    					appendMsgLi(msgById, msgContent);
     				}else{
     					var count = parseInt($('.directMsgs .clickSection[msg-to-id="'+msgById+'"]').find('.badge').html());
     					count++;
     					$('.directMsgs .clickSection[msg-to-id="'+msgById+'"]').find('.badge').html(count);
+    					
+    					showDesktopNotification(msgContForNotf, msgByName, msgType, msgById);
     					
     					createNotification(msgType, msgToId, msgById)
     				}
     			}
     		}else{
     			if(msgKind == "myMsg"){
-    				appendMsgLi(msgById, data.messageContent);
+    				appendMsgLi(msgById, msgContent);
     			}else{
     				var activeSelect = $('.groupMsgs .clickSection.active');
     				if(activeSelect.attr('msg-to-id') == msgToId){
-    					appendMsgLi(msgById, data.messageContent);
+    					appendMsgLi(msgById, msgContent);
     				}else{
     					var count = parseInt($('.groupMsgs .clickSection[msg-to-id="'+msgToId+'"]').find('.badge').html());
     					count++;
     					$('.groupMsgs .clickSection[msg-to-id="'+msgToId+'"]').find('.badge').html(count);
+    					
+    					showDesktopNotification(msgContForNotf, msgByName, msgType, msgById);
     					
     					createNotification(msgType, msgToId, msgById);
     				}
@@ -117,6 +124,30 @@ $(function(){
 		});
 		console.log("dummy message");
     }
+    
+    function showDesktopNotification(msgContent, msgByName, msgType){
+    	var nOptions = {
+    			  body: msgContent
+    			  //sound: 'assets/sounds/myNotification.mp3',
+    			  //icon: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01.jpg'
+    			}
+    	if (!("Notification" in window)) {
+    	    alert("This browser does not support desktop notification");
+    	} else {
+    		 	if (Notification.permission === "granted") {	
+    	    		var notification = new Notification(msgByName, nOptions);
+    	  		} else {
+    		  			if (Notification.permission !== 'denied') {
+    	    				Notification.requestPermission(function (permission) {
+    					     	if (permission === "granted") {
+    					        	var notification = new Notification(msgByName, nOptions);
+    					      	}
+    	    				});
+    		  			}
+    	  		}
+    	  }
+    }
+    
     
 });
 

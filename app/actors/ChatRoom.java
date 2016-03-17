@@ -94,27 +94,30 @@ public class ChatRoom extends UntypedActor{
 						WebSocket.Out<JsonNode> outReverse  = onlineUserConnectionMap.get(groupMemberId);
 						String messageDivRev = views.html.messageTemplate.render(message, true, false).toString();
 						
-						final ObjectNode returnEeventRev = Json.newObject();
-						//returnEeventRev.put("messageKind", "reply");
-						returnEeventRev.put("toId", toGroupId);
-						returnEeventRev.put("byId", byId);
-						returnEeventRev.put("messageKind", "myMsg");
-						returnEeventRev.put("messageType", Constants.GROUP_MESSAGE);
-						returnEeventRev.put("messageContent", messageDivRev);
-						outReverse.write(returnEeventRev);
+						final ObjectNode returnEventRev = Json.newObject();
+						//returnEventRev.put("messageKind", "reply");
+						returnEventRev.put("toId", toGroupId);
+						returnEventRev.put("byId", byId);
+						returnEventRev.put("messageKind", "myMsg");
+						returnEventRev.put("messageType", Constants.GROUP_MESSAGE);
+						returnEventRev.put("messageContent", messageDivRev);
+						outReverse.write(returnEventRev);
 					}else{
 						//To other user
 						WebSocket.Out<JsonNode> out  = onlineUserConnectionMap.get(groupMemberId);
 						String messageDiv = views.html.messageTemplate.render(message, false, false).toString();
 						
-						final ObjectNode returnEevent = Json.newObject();
-						//returnEevent.put("messageKind", "reply");
-						returnEevent.put("toId", toGroupId);
-						returnEevent.put("byId", byId);
-						returnEevent.put("messageKind", "othersMsg");
-						returnEevent.put("messageType", Constants.GROUP_MESSAGE);
-						returnEevent.put("messageContent", messageDiv);
-						out.write(returnEevent);
+						final ObjectNode returnEvent = Json.newObject();
+						//returnEvent.put("messageKind", "reply");
+						returnEvent.put("toId", toGroupId);
+						returnEvent.put("byId", byId);
+						returnEvent.put("msgByName", group.name);
+						returnEvent.put("msgByPic","");
+						returnEvent.put("messageKind", "othersMsg");
+						returnEvent.put("messageType", Constants.GROUP_MESSAGE);
+						returnEvent.put("messageContent", messageDiv);
+						returnEvent.put("msgContForNotf", content);
+						out.write(returnEvent);
 					}
 				}else{
 					MessageNotification.createGroupNotification(AppUser.find.byId(groupMemberId), group);
@@ -141,13 +144,16 @@ public class ChatRoom extends UntypedActor{
 			WebSocket.Out<JsonNode> out  = onlineUserConnectionMap.get(toId);
 			String messageDiv = views.html.messageTemplate.render(message, false, false).toString();
 			
-			final ObjectNode returnEevent = Json.newObject();
-			returnEevent.put("messageKind", "othersMsg");
-			returnEevent.put("toId", toId);
-			returnEevent.put("byId", byId);
-			returnEevent.put("messageType", Constants.DIRECT_MESSAGE);
-			returnEevent.put("messageContent", messageDiv);
-			out.write(returnEevent);
+			final ObjectNode returnEvent = Json.newObject();
+			returnEvent.put("messageKind", "othersMsg");
+			returnEvent.put("toId", toId);
+			returnEvent.put("byId", byId);
+			returnEvent.put("msgByName", sendBy.name);
+			returnEvent.put("msgByPic","");
+			returnEvent.put("messageType", Constants.DIRECT_MESSAGE);
+			returnEvent.put("messageContent", messageDiv);
+			returnEvent.put("msgContForNotf", content);
+			out.write(returnEvent);
 		}else{
 			MessageNotification.createPersonalNotification(sendTo, sendBy);
 		}
@@ -156,13 +162,13 @@ public class ChatRoom extends UntypedActor{
 			WebSocket.Out<JsonNode> outReverse  = onlineUserConnectionMap.get(byId);
 			String messageDivRev = views.html.messageTemplate.render(message, true, false).toString();
 			
-			final ObjectNode returnEeventRev = Json.newObject();
-			returnEeventRev.put("messageKind", "myMsg");
-			returnEeventRev.put("toId", toId);
-			returnEeventRev.put("byId", byId);
-			returnEeventRev.put("messageType", Constants.DIRECT_MESSAGE);
-			returnEeventRev.put("messageContent", messageDivRev);
-			outReverse.write(returnEeventRev);
+			final ObjectNode returnEventRev = Json.newObject();
+			returnEventRev.put("messageKind", "myMsg");
+			returnEventRev.put("toId", toId);
+			returnEventRev.put("byId", byId);
+			returnEventRev.put("messageType", Constants.DIRECT_MESSAGE);
+			returnEventRev.put("messageContent", messageDivRev);
+			outReverse.write(returnEventRev);
 		}
     }
     
