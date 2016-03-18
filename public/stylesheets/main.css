@@ -1,4 +1,30 @@
-.active{
+#chatUserPannel {
+  background: #003319 !important;
+  color: #FFF !important;
+  display: block;
+}
+.chat-room {
+	
+}
+
+#chatUserPannel .active{
 	background : lightgray;
 	color:black;
+}
+#chatUserPannel ul {
+  padding:0px;
+  height: 770px;
+}
+#chatUserPannel ul li {
+  padding-bottom: 0px;
+}
+.panel-heading {
+	background: #002612;
+	padding: 9px 16px !important;
+}
+#chatUserPannel .groupMsgs li {
+	padding: 0px 0px 16px 14px !important;
+}
+#chatUserPannel .directMsgs li {
+	padding: 0px 0px 0px 20px !important;
 }

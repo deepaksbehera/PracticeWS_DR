@@ -125,27 +125,48 @@ $(function(){
 		console.log("dummy message");
     }
     
-    function showDesktopNotification(msgContent, msgByName, msgType){
-    	var nOptions = {
-    			  body: msgContent
-    			  //sound: 'assets/sounds/myNotification.mp3',
-    			  //icon: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01.jpg'
-    			}
-    	if (!("Notification" in window)) {
+    function showDesktopNotification(msgContent, msgByName, msgType, msgById){
+    	var isFirefox = typeof InstallTrigger !== 'undefined';   // Firefox 1.0+
+    	var nOptions;
+		 if(isFirefox==true){
+			  nOptions = {
+					  body: msgContent,
+				      iconUrl: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01_green.jpg'
+			  }
+		  }else{
+			  nOptions = {
+					  body: msgContent,
+					  icon: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01_green.jpg'
+			  }
+		  }
+		console.log(nOptions);
+		var notification;
+		if (!("Notification" in window)) {
     	    alert("This browser does not support desktop notification");
     	} else {
     		 	if (Notification.permission === "granted") {	
-    	    		var notification = new Notification(msgByName, nOptions);
+    	    		notification = new Notification(msgByName, nOptions);
     	  		} else {
     		  			if (Notification.permission !== 'denied') {
     	    				Notification.requestPermission(function (permission) {
     					     	if (permission === "granted") {
-    					        	var notification = new Notification(msgByName, nOptions);
+    					        	notification = new Notification(msgByName, nOptions);
     					      	}
     	    				});
     		  			}
     	  		}
     	  }
+		
+		notification.onclick = function () {
+			//window.location.href = '/secure-hms/connect';
+		};
+		notification.onerror = function () {
+		};
+		notification.onshow = function () {
+		};
+		notification.onclose = function () {
+		};
+		setTimeout(notification.close.bind(notification),3000);
     }
     
     

@@ -1,39 +1,39 @@
 @(message: String)
 
-@main("Websocket Chat") {
+@main("Home") {
 <div class="container">
-		<section class="login-content">
-			@if(flash.containsKey("alert")){
-                	<div class="alert @flash().get("alert").split("~")(0) alert-dismissible" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    @flash().get("alert").split("~")(1)
-                    </div>
-            }
-		    <div class="row">
-		    	<div class="main-login col-md-4 col-md-offset-4">
-		    	<div id="error-div" class="error-msg"></div><br>
-		    		<div class="panel panel-default">
-					  	<div class="panel-body">
-					    	<h3 class="panel-title">SIGN IN</h3>
-					 	</div>
-					  	<div class="panel-heading">
-					    	<form role="form" method="POST" class="driver-form" id="login-form" action="@routes.LoginController.processLogin()">
-			                    <div class="form-group">
-						          <label for="inputUsernameEmail">Name:</label>
-						          <input type="text" class="form-control" id="name" name="name" tabindex="1">
-						        </div>
-						      @*  <div class="form-group">
-						          <label for="inputPassword">Password:</label>
-						          <input type="password" class="form-control" id="password" name="password" tabindex="2">
-						        </div>*@
-						        <button type="submit" class="btn btn-delhivery" tabindex="3">
-						          <i class="fa fa-sign-in"></i> Login
-						        </button>
-					      	</form>
-					    </div>
-					</div>
+	<section class="login-content">
+		@if(flash.containsKey("alert")){
+               	<div class="alert @flash().get("alert").split("~")(0) alert-dismissible" role="alert">
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  @flash().get("alert").split("~")(1)
+                </div>
+           }
+	    <div class="row">
+	    	<div class="main-login col-md-4 col-md-offset-4">
+	    	<div id="error-div" class="error-msg"></div><br>
+	    		<div class="panel panel-default">
+				  	<div class="panel-body">
+				    	<h3 class="panel-title">SIGN IN</h3>
+				 	</div>
+				  	<div class="panel-heading">
+				    	<form role="form" method="POST" class="driver-form" id="login-form" action="@routes.LoginController.processLogin()">
+		                    <div class="form-group">
+					          <label for="inputUsernameEmail">Name:</label>
+					          <input type="text" class="form-control" id="name" name="name" tabindex="1">
+					        </div>
+					      @*  <div class="form-group">
+					          <label for="inputPassword">Password:</label>
+					          <input type="password" class="form-control" id="password" name="password" tabindex="2">
+					        </div>*@
+					        <button type="submit" class="btn btn-delhivery" tabindex="3">
+					          <i class="fa fa-sign-in"></i> Login
+					        </button>
+				      	</form>
+				    </div>
 				</div>
 			</div>
-		</section>
+		</div>
+	</section>
 	</div>
 }
