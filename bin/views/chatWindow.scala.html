@@ -3,7 +3,7 @@
 
 @main("Welcome To Chat World"){
 <div class="row chat-room">
-	<div class="col-md-3" id="chatUserPannel">
+	<div class="col-md-2" id="chatUserPannel">
 		<div>
 			<span class="fa fa-search"></span>
 			<input type="text" placeholder="Search" class="form-control">
@@ -14,13 +14,13 @@
 		<ul>
 		    <span class="groupMsgs">
 			     @for(group <- appUser.getAppUserGroups){
-			     	 <li class="clearfix clickSection @if(group.id.equals(generalGroupId)){active}" 
+			     	 <li class="clickSection @if(group.id.equals(generalGroupId)){active}" 
 			     	 	msg-to-id="@group.id" msg-type="@utils.Constants.GROUP_MESSAGE" style="cursor:pointer;">
-				          <div class="about">
+				          <span class="about">
 				          	@defining(models.MessageNotification.getGroupUnSeenMsgCount(appUser, group)){count=>
 				            	<div><span class="name">@group.name</span> <span class="badge">@count</span></div>
 				          	}
-				          </div>
+				          </span>
 			        </li>
 	    	     }
     	     </span>
@@ -30,23 +30,23 @@
 		</div>
 			<span class="directMsgs">
 			      @for(user <- AppUser.find.where().ne("id", appUser.id).findList()){
-			        <li class="clearfix clickSection" msg-to-id="@user.id" 
+			        <li class="clickSection" msg-to-id="@user.id" 
 			        	style="cursor:pointer;" msg-type="@utils.Constants.DIRECT_MESSAGE">
-			          <div class="about">
+			          <span class="about">
 				          	@defining(models.MessageNotification.getPersonalUnSeenMsgCount(appUser, user)){count=>
-				            	<div><span class="name">@user.name</span><span class="badge">@count</span></div>
+				            	<div><span class="name">@user.firstName</span><span class="badge">@count</span></div>
 				            }
-				            <div class="status">
-				              	<i class="fa fa-circle offline" id="status-@user.id">&nbsp; Offline</i>
-				            </div>
-			          </div>
+				            <span class="status">
+				              	<i class="my-circle-e offline" id="status-@user.id">&nbsp; Offline</i>
+				            </span>
+			          </span>
 			        </li>
 			      }
 			</span>
 		</ul>
 	</div>
 	
-	<div class="col-md-9">
+	<div class="col-md-10">
 		<div class="chat-header">
 	        <img src="" alt="avatar" />
 	        <div class="chat-about">
@@ -67,13 +67,27 @@
 			<input type="hidden" id="msgTypeVal" value="@utils.Constants.GROUP_MESSAGE">
 			<input type="hidden" id="msgById" value="@appUser.id">
 			<input type="hidden" id="msgToId" value="@generalGroupId">
-			<textarea name="message-to-send" id="messageBox" placeholder ="Type your message" class="form-control" rows="3"></textarea>
-			<i class="fa fa-file-o"></i> &nbsp;&nbsp;&nbsp;
-			<i class="fa fa-file-image-o"></i>
-			<button id="sendMessage" class="btn btn-info form-control" >Send</button>
+			<textarea name="message-to-send" id="messageBox" placeholder ="Type your message" class="form-control"></textarea>
 		</div>
 	</div>
 </div>
+
+ <!-- Modal -->
+  <div class="modal fade" id="defaultModal" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Profile</h4>
+        </div>
+        <div class="modal-body">
+          <p>Loading Please Wait...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
 <script type="text/javascript" charset="utf-8" src="@routes.WebSocketController.loadChatWSJs(appUser.id)"></script>
 <script>
 $(document).on('click','.clickSection',function(e){

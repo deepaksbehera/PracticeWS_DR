@@ -31,6 +31,7 @@ public class ChatRoom extends UntypedActor{
 		Map<Long, List<Long>> groupConnectionMap = new HashMap<Long, List<Long>>();
 		GroupChannel.find.all().stream().forEach(group -> {
 			List<Long> appUserIdList = group.appUserList.stream().map(appUser -> appUser.id).collect( Collectors.toList() );
+			Logger.info(">>>"+group.name + ">>>>"+appUserIdList);
 			groupConnectionMap.put(group.id, appUserIdList);
 		});
 		return groupConnectionMap;
@@ -67,7 +68,7 @@ public class ChatRoom extends UntypedActor{
         
         in.onClose(new Callback0(){
             public void invoke(){
-            	Logger.error("User went offline with user id : "+AppUser.find.byId(appUserId).name);
+            	Logger.error("User went offline with user id : "+AppUser.find.byId(appUserId).firstName);
             	onlineUserConnectionMap.remove(appUserId);
             }
         });
@@ -77,7 +78,7 @@ public class ChatRoom extends UntypedActor{
     public static void notifyGroupMembers(String content, Long toGroupId, Long byId){
     	GroupChannel group = GroupChannel.find.byId(toGroupId);
     	AppUser loginUser = AppUser.find.byId(byId);
-    	Logger.info("notify All is called----"+group.name+" By User : "+loginUser.name);
+    	Logger.info("notify All is called----"+group.name+" By User : "+loginUser.firstName);
     	Messages message = new Messages();
 		message.setEncodedMessage(content.trim());
 		message.sendOn = new Date();
@@ -85,6 +86,7 @@ public class ChatRoom extends UntypedActor{
 		message.isMessagePersonal = Boolean.FALSE;
 		message.groupChannel = group;
 		message.save();
+		Logger.info("groupConnectionMap"+ groupConnectionMap);
 		if(groupConnectionMap.containsKey(toGroupId)){
 			Logger.info("Group Available");
 			groupConnectionMap.get(toGroupId).stream().forEach(groupMemberId -> {
@@ -148,7 +150,7 @@ public class ChatRoom extends UntypedActor{
 			returnEvent.put("messageKind", "othersMsg");
 			returnEvent.put("toId", toId);
 			returnEvent.put("byId", byId);
-			returnEvent.put("msgByName", sendBy.name);
+			returnEvent.put("msgByName", sendBy.firstName);
 			returnEvent.put("msgByPic","");
 			returnEvent.put("messageType", Constants.DIRECT_MESSAGE);
 			returnEvent.put("messageContent", messageDiv);
@@ -182,7 +184,7 @@ public class ChatRoom extends UntypedActor{
     				obj.put("messageType", Constants.DUMMY_MESSAGE);
     				obj.put("toUserId", onlineUserId);
     				obj.put("onlineUserList", Json.toJson(onlineUserIdSet));
-    			System.out.print(AppUser.find.byId(onlineUserId).name+ ",");
+    			System.out.print(AppUser.find.byId(onlineUserId).firstName+ ",");
     			outReverse.write(obj);
     		});
     		System.out.println();

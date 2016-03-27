@@ -5,8 +5,6 @@
 # Home page
 GET     /                           						controllers.Application.index()
 
-# Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               						controllers.Assets.versioned(path="/public", file: Asset)
 
 #Login,Logout
 GET	   	/sample-data										controllers.SampleController.sampleData()
@@ -20,3 +18,13 @@ GET   	/get-ws-interface/:id								controllers.WebSocketController.wsInterface(
 GET   	/get-messages/:type/:toId							controllers.WebSocketController.getMessages(type:String, toId:Long)
 GET		/make-all-message-as-seen/:type/:toId				controllers.WebSocketController.makeAllMessagesAsSeen(type:String, toId:Long)
 GET		/create-notification/:type/:toId/:fromId			controllers.WebSocketController.createMessageNotification(type:String, toId: Long, fromId: Long)
+
+GET		/get-user-form/:id									controllers.UserController.getUserForm(id:Long)
+POST	/save-user											controllers.UserController.saveUser()
+GET		/get-user-image/:id									controllers.UserController.showAppUserImage(id: Long)
+GET		/get-user-thumbnail-image/:id						controllers.UserController.showAppUserImageAsThumbnail(id: Long)
+
+
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               						controllers.Assets.versioned(path="/public", file: Asset)

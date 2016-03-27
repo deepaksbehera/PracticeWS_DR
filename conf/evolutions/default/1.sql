@@ -5,14 +5,17 @@
 
 create table app_user (
   id                        bigserial not null,
-  name                      varchar(255),
-  user_name                 varchar(255),
+  first_name                varchar(255),
+  last_name                 varchar(255),
+  email                     varchar(255),
+  gender                    varchar(6),
   password                  varchar(255),
   image                     bytea,
   thumbnail_image           bytea,
   created_on                timestamp not null,
   last_update               timestamp not null,
-  constraint uq_app_user_user_name unique (user_name),
+  constraint ck_app_user_gender check (gender in ('OTHER','MALE','FEMALE')),
+  constraint uq_app_user_email unique (email),
   constraint pk_app_user primary key (id))
 ;
 

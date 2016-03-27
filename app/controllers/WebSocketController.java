@@ -34,7 +34,7 @@ public class WebSocketController extends Controller {
         return new WebSocket<JsonNode>(){
             // called when websocket handshake is done
             public void onReady(WebSocket.In<JsonNode> in, WebSocket.Out<JsonNode> out){
-            	Logger.warn("websocket handshake is done of : "+AppUser.find.byId(appUserId).name);
+            	Logger.warn("websocket handshake is done of : "+AppUser.find.byId(appUserId).firstName);
             	ChatRoom.start(in, out, appUserId);
             }
         };   

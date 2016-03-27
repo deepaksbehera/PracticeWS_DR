@@ -13,7 +13,7 @@ public class LoginController extends Controller{
 	public Result processLogin(){
 		session().remove(Constants.LOGGED_IN_USER_ID);
 		DynamicForm form = Form.form().bindFromRequest();
-		AppUser appUser = AppUser.find.where().ieq("name",form.get("name").trim()).findUnique();
+		AppUser appUser = AppUser.find.where().ieq("email",form.get("email").trim()).findUnique();
 		if(appUser != null){
 			session().put(Constants.LOGGED_IN_USER_ID, appUser.id+"");
 			return redirect(routes.LoginController.getDashBoard());
@@ -25,7 +25,8 @@ public class LoginController extends Controller{
 	public Result getDashBoard(){
 		final AppUser appUsr = LoginController.getLoggedInUser();
 		if(appUsr != null){
-			return ok(views.html.chatWindow.render(appUsr, GroupChannel.getGeneralGroup().id));
+			return ok(views.html.chatHome.render(appUsr, GroupChannel.getGeneralGroup().id));
+			//return ok(views.html.chatWindow.render(appUsr, GroupChannel.getGeneralGroup().id));
 		}else{
 			session().remove(Constants.LOGGED_IN_USER_ID);
 			return redirect(routes.Application.index());

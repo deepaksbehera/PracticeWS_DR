@@ -8,13 +8,19 @@ import javax.persistence.Lob;
 
 import com.avaje.ebean.Model;
 
+import beans.AppUserBean;
+
 @Entity
 public class AppUser extends BaseEntity{
 	
-	public String name;
+	public String firstName;
+	
+	public String lastName;
 	
 	@Column(unique = true)
-	public String userName;
+	public String email;
+	
+	public Gender gender;
 	
 	public String password;
 	
@@ -28,5 +34,18 @@ public class AppUser extends BaseEntity{
 	
 	public List<GroupChannel> getAppUserGroups(){
 		return GroupChannel.find.where().in("appUserList", this).findList();
+	}
+	
+	public String getFullName(){
+		return  (lastName != null) ? firstName+" "+lastName : firstName;
+	}
+	
+	public AppUserBean toBean(){
+		AppUserBean bean = new AppUserBean();
+			bean.id = this.id;
+			bean.firstName = this.firstName;
+			bean.lastName = this.lastName;
+			bean.email = this.email;
+		return bean;
 	}
 }

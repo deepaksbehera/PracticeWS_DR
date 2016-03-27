@@ -3,8 +3,35 @@
 <li class="message-li" messageOfUser="@message.sendBy.id">
 	@if(!isMessageFromSameUser){
 	   <div class="message-data align-right dateAndName">
+	     <span class="message-data-time bold" >@message.sendOn.format("dd-MM-yyyy hh:mm:ss")</span> &nbsp; &nbsp;
+	     <span class="message-data-name bold" >@message.sendBy.firstName</span>
+	   </div>
+	}
+   <div class="message other-message">
+     @message.getDecoadedMessage
+   </div>
+</li>
+}else{
+<li class="message-li" messageOfUser="@message.sendBy.id">
+	@if(!isMessageFromSameUser){	
+		 <div class="message-data dateAndName">
+		   <span class="message-data-name bold">@message.sendBy.firstName</span>
+		   <span class="message-data-time bold">@message.sendOn.format("dd-MM-yyyy hh:mm:ss")</span>
+		 </div>
+	 }
+	 <div class="message my-message">
+	   @message.getDecoadedMessage
+	 </div>
+</li>
+}
+
+@*
+@if(isMyMessage){
+<li class="message-li" messageOfUser="@message.sendBy.id">
+	@if(!isMessageFromSameUser){
+	   <div class="message-data align-right dateAndName">
 	     <span class="message-data-time" >@message.sendOn.format("dd-MM-yyyy hh:mm:ss")</span> &nbsp; &nbsp;
-	     <span class="message-data-name" >@message.sendBy.name</span>
+	     <span class="message-data-name" >@message.sendBy.firstName</span>
 	   </div>
 	}
    <div class="message other-message float-right">
@@ -15,7 +42,7 @@
 <li class="message-li" messageOfUser="@message.sendBy.id">
 	@if(!isMessageFromSameUser){	
 		 <div class="message-data dateAndName">
-		   <span class="message-data-name">@message.sendBy.name</span>
+		   <span class="message-data-name">@message.sendBy.firstName</span>
 		   <span class="message-data-time">@message.sendOn.format("dd-MM-yyyy hh:mm:ss")</span>
 		 </div>
 	 }
@@ -24,3 +51,4 @@
 	 </div>
 </li>
 }
+*@

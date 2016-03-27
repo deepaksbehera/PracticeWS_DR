@@ -1,12 +1,9 @@
+
 #chatUserPannel {
   background: #003319 !important;
   color: #FFF !important;
   display: block;
 }
-.chat-room {
-	
-}
-
 #chatUserPannel .active{
 	background : lightgray;
 	color:black;
@@ -16,15 +13,47 @@
   height: 770px;
 }
 #chatUserPannel ul li {
-  padding-bottom: 0px;
+  	list-style-type:none;
+	padding:0px;
+	position:relative;
 }
 .panel-heading {
 	background: #002612;
 	padding: 9px 16px !important;
 }
 #chatUserPannel .groupMsgs li {
-	padding: 0px 0px 16px 14px !important;
+	padding: 5px 0px 5px 19px !important;
 }
 #chatUserPannel .directMsgs li {
-	padding: 0px 0px 0px 20px !important;
+	padding: 5px 0px 5px 19px !important;
+          margin: 7px 0;
 }
+.chat-history ul li {
+  	list-style-type:none;
+	padding:10px;
+	position:relative;
+}
+.online, .offline {
+  margin-right: 6px;
+  margin-left: -10px;
+  font-size: 10px;
+  width: 12px;
+  height: 12px;
+  border-radius: 35%;
+  margin-top: 4px;
+}
+.online {
+background-color: #73D216;
+}
+.offline {
+background-color: #999595;
+}
+      .mgl5{margin-left: 5px}
+      .mgl10{margin-left: 10px}
+      .mgb10{margin-bottom: 10px;}
+      .message-li{width: 50%;background-color: #eee;margin: 10px;border-radius: 5px;}
+      .wid92{width:92%}
+      .chat-message{width: 48%;position: relative;left: 51px;}
+      .message {margin-left: 5px;margin-top:7px }
+      .bold{font-weight: 800}
+      .pdt10{padding-top: 10px}

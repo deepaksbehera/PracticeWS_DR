@@ -11,7 +11,9 @@ scalaVersion := "2.11.6"
 libraryDependencies ++= Seq(
   javaJdbc,
   cache,
-  javaWs
+  javaWs,
+  "com.adrianhurt" %% "play-bootstrap3" % "0.4.4-P24",
+  "org.imgscalr" % "imgscalr-lib" % "4.0"
 )
 
 // Play provides two styles of routers, one expects its actions to be injected, the

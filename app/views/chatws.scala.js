@@ -75,9 +75,9 @@ $(function(){
         	sendMessage($(this).val());   
         }
     }); 
-    $(document).on('click','#sendMessage',function(){
+    /*$(document).on('click','#sendMessage',function(){
     	sendMessage($('#messageBox').val());
-    });
+    });*/
     
     function sendMessage(message){
     	//alert(message+">"+type+">"+toUserId)
@@ -98,7 +98,7 @@ $(function(){
     
     function appendMsgLi(msgById, messageContent){
     	var lastMsgId = $('#message-data .message-li').last().attr('messageOfUser');
-    	//console.log(lastMsgId+ ">append>>"+msgById);
+    	console.log(lastMsgId+ ">append>>"+msgById);
     	if(lastMsgId == msgById){
     		//console.log("same");
     		
@@ -113,13 +113,13 @@ $(function(){
 		console.log(onlineUserList);
 		$('.status i').removeClass('online');
 		$('.status i').addClass('offline');
-		$('.status i').html('&nbsp; Offline');
+		//$('.status i').html('&nbsp; Offline');
 		$.each(onlineUserList,function(index, ouser){
 			//if(!(ouser == toUserId)){
 				//console.log('#status-'+ouser);
 				$('#status-'+ouser).removeClass('offline');
 				$('#status-'+ouser).addClass('online');
-				$('#status-'+ouser).html('&nbsp; Online');
+				//$('#status-'+ouser).html('&nbsp; Online');
 			//}
 		});
 		console.log("dummy message");
@@ -128,19 +128,19 @@ $(function(){
     function showDesktopNotification(msgContent, msgByName, msgType, msgById){
     	var isFirefox = typeof InstallTrigger !== 'undefined';   // Firefox 1.0+
     	var nOptions;
+    	var notification;
 		 if(isFirefox==true){
 			  nOptions = {
-					  body: msgContent,
-				      iconUrl: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01_green.jpg'
+					  body: msgContent
+				     // iconUrl: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01_green.jpg'
 			  }
 		  }else{
 			  nOptions = {
-					  body: msgContent,
-					  icon: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01_green.jpg'
+					  body: msgContent
+					  //icon: 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/195612/chat_avatar_01_green.jpg'
 			  }
 		  }
 		console.log(nOptions);
-		var notification;
 		if (!("Notification" in window)) {
     	    alert("This browser does not support desktop notification");
     	} else {
