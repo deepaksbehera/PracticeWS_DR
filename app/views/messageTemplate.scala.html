@@ -1,54 +1,21 @@
-@(message : models.Messages, isMyMessage : Boolean, isMessageFromSameUser : Boolean)
-@if(isMyMessage){
-<li class="message-li" messageOfUser="@message.sendBy.id">
-	@if(!isMessageFromSameUser){
-	   <div class="message-data align-right dateAndName">
-	     <span class="message-data-time bold" >@message.sendOn.format("dd-MM-yyyy hh:mm:ss")</span> &nbsp; &nbsp;
-	     <span class="message-data-name bold" >@message.sendBy.firstName</span>
-	   </div>
-	}
-   <div class="message other-message">
-     @message.getDecoadedMessage
-   </div>
-</li>
-}else{
-<li class="message-li" messageOfUser="@message.sendBy.id">
-	@if(!isMessageFromSameUser){	
-		 <div class="message-data dateAndName">
-		   <span class="message-data-name bold">@message.sendBy.firstName</span>
-		   <span class="message-data-time bold">@message.sendOn.format("dd-MM-yyyy hh:mm:ss")</span>
-		 </div>
-	 }
-	 <div class="message my-message">
-	   @message.getDecoadedMessage
-	 </div>
-</li>
-}
+@(message : models.Messages, isMyMessage : Boolean, isResponseMessage : Boolean)
 
-@*
-@if(isMyMessage){
-<li class="message-li" messageOfUser="@message.sendBy.id">
-	@if(!isMessageFromSameUser){
-	   <div class="message-data align-right dateAndName">
-	     <span class="message-data-time" >@message.sendOn.format("dd-MM-yyyy hh:mm:ss")</span> &nbsp; &nbsp;
-	     <span class="message-data-name" >@message.sendBy.firstName</span>
-	   </div>
-	}
-   <div class="message other-message float-right">
-     @message.getDecoadedMessage
+@if(isResponseMessage){
+<li class="message-li @if(isMyMessage){myMessage}else{otherMessage}" messageOfUser="@message.sendBy.id">
+		<span class="message-by-img">
+			<img src="@routes.UserController.showAppUserImageAsThumbnail(message.sendBy.id)" 
+			onerror="this.src='assets/images/defaultMail.png'" width="35" height="35"/>
+		</span>
+		<span class="message-data dateAndName">
+		 	<span class="message-data-name bold" >@message.sendBy.firstName</span>
+		  	<span class="message-data-time bold" >@message.sendOn.format("dd-MM-yyyy hh:mm:ss")</span> &nbsp; &nbsp;
+		</span>
+   <div class="message">
+    <p> @message.getDecoadedMessage</p>
    </div>
 </li>
 }else{
-<li class="message-li" messageOfUser="@message.sendBy.id">
-	@if(!isMessageFromSameUser){	
-		 <div class="message-data dateAndName">
-		   <span class="message-data-name">@message.sendBy.firstName</span>
-		   <span class="message-data-time">@message.sendOn.format("dd-MM-yyyy hh:mm:ss")</span>
-		 </div>
-	 }
-	 <div class="message my-message">
-	   @message.getDecoadedMessage
-	 </div>
-</li>
+<div class="message">
+ 	<p> @message.getDecoadedMessage</p>
+</div>
 }
-*@

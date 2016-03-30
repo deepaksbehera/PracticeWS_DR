@@ -48,15 +48,8 @@ public class WebSocketController extends Controller {
     	}else{
     		msgList = Messages.getGroupMessages(loginUser, GroupChannel.find.byId(id));
     	}
-    	Map<Long,String> messageMap = new LinkedHashMap<Long,String>();
-    	Long prevMsgId = 0L;
-    	for(Messages message : msgList){
-    		Long messageById = message.sendBy.id;
-    		messageMap.put(message.id, views.html.messageTemplate.render(message, messageById.equals(loginUser.id)
-    				, prevMsgId.equals(messageById)).toString());
-    		prevMsgId = messageById;
-    	}
-    	return ok(Json.toJson(messageMap));
+    	
+    	return ok(views.html.messageListPage.render(loginUser, msgList));
     }
     
     public Result makeAllMessagesAsSeen(String type, Long id){

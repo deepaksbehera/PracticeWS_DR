@@ -94,7 +94,7 @@ public class ChatRoom extends UntypedActor{
 					if(groupMemberId.equals(loginUser.id)){
 						//Notify to messageBy user
 						WebSocket.Out<JsonNode> outReverse  = onlineUserConnectionMap.get(groupMemberId);
-						String messageDivRev = views.html.messageTemplate.render(message, true, false).toString();
+						String messageDivRev = views.html.messageTemplate.render(message, true, true).toString();
 						
 						final ObjectNode returnEventRev = Json.newObject();
 						//returnEventRev.put("messageKind", "reply");
@@ -107,7 +107,7 @@ public class ChatRoom extends UntypedActor{
 					}else{
 						//To other user
 						WebSocket.Out<JsonNode> out  = onlineUserConnectionMap.get(groupMemberId);
-						String messageDiv = views.html.messageTemplate.render(message, false, false).toString();
+						String messageDiv = views.html.messageTemplate.render(message, false, true).toString();
 						
 						final ObjectNode returnEvent = Json.newObject();
 						//returnEvent.put("messageKind", "reply");
@@ -144,7 +144,7 @@ public class ChatRoom extends UntypedActor{
 		if(onlineUserConnectionMap.containsKey(toId)){
 			//To other user
 			WebSocket.Out<JsonNode> out  = onlineUserConnectionMap.get(toId);
-			String messageDiv = views.html.messageTemplate.render(message, false, false).toString();
+			String messageDiv = views.html.messageTemplate.render(message, false, true).toString();
 			
 			final ObjectNode returnEvent = Json.newObject();
 			returnEvent.put("messageKind", "othersMsg");
@@ -162,7 +162,7 @@ public class ChatRoom extends UntypedActor{
 		if(onlineUserConnectionMap.containsKey(byId)){
 			//Notify to messageBy user
 			WebSocket.Out<JsonNode> outReverse  = onlineUserConnectionMap.get(byId);
-			String messageDivRev = views.html.messageTemplate.render(message, true, false).toString();
+			String messageDivRev = views.html.messageTemplate.render(message, true, true).toString();
 			
 			final ObjectNode returnEventRev = Json.newObject();
 			returnEventRev.put("messageKind", "myMsg");

@@ -1,0 +1,117 @@
+@(appUser : models.AppUser, generalGroupId : Long)
+
+@main("Home"){
+<div class="row">
+	<div class="col-md-2 pdt10" id="chatUserPannel">
+		<div class="wid92 mgb10">
+			<span class="fa fa-search"></span>
+			<input type="text" placeholder="Search" class="form-control">
+		</div>
+		<div class="panel-heading">
+			Channels &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="createGroup" style="cursor:pointer;">+</span>
+		</div>
+		<ul>
+			<span class="groupMsgs">
+			@for(group <- appUser.getAppUserGroups){
+				 <li class="clickSection @if(group.id.equals(generalGroupId)){active}" 
+			     	 	msg-to-id="@group.id" msg-type="@utils.Constants.GROUP_MESSAGE" style="cursor:pointer;">
+			          <span class="about">
+			          	@defining(models.MessageNotification.getGroupUnSeenMsgCount(appUser, group)){count=>
+			            	<div><span class="name">@group.name</span> 
+			            	<span class="badge pull-right">@count</span></div>
+			          	}
+			          </span>
+			     </li>
+			}
+			</span>
+    	
+	   	<div class="panel-heading">
+			Direct Messages
+		</div>
+			<span class="directMsgs">
+			@for(user <- AppUser.find.where().ne("id", appUser.id).findList()){
+			        <li class="clickSection" msg-to-id="@user.id" 
+			        	style="cursor:pointer;" msg-type="@utils.Constants.DIRECT_MESSAGE">
+			          <span class="about">
+				          	@defining(models.MessageNotification.getPersonalUnSeenMsgCount(appUser, user)){count=>
+				            	<div class="status">
+				            		<i id="status-@user.id" class="pull-left offline"> </i>
+				            		<span class="name">@user.firstName</span>
+				            		<span class="badge pull-right">@count</span>
+				            	</div>
+				            }
+			          </span>
+			        </li>
+			      }
+			</span>
+		</ul>
+	</div>
+	
+	<div class="col-md-10 pdt10">
+		<div class="row chat-header">
+	        <div class="chat-about">
+		          <h4><div class="chat-with bold"><span id="message-room-name">GENERAL</span></div></h4>
+	        </div>
+	        <i class="fa fa-star"></i>
+	    </div>
+		<div class="row chat-history">
+			<ul id="message-data">
+				@messageListPage(appUser, models.Messages.getGroupMessages(appUser, GroupChannel.find.byId(generalGroupId)))
+		   	</ul>
+    	</div>
+		<div class="row chat-message">
+			<input type="hidden" id="msgTypeVal" value="@utils.Constants.GROUP_MESSAGE">
+			<input type="hidden" id="msgById" value="@appUser.id">
+			<input type="hidden" id="msgToId" value="@generalGroupId">
+			<textarea name="message-to-send" id="messageBox" placeholder ="Type your message" class="form-control"></textarea>
+		</div>
+	</div>
+</div>
+
+ <!-- Modal -->
+  <div class="modal fade" id="defaultModal" role="dialog">
+    <div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Profile</h4>
+        </div>
+        <div class="modal-body">
+          <p>Loading Please Wait...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+<script type="text/javascript" charset="utf-8" src="@routes.WebSocketController.loadChatWSJs(appUser.id)"></script>
+<script>
+$(document).on('click','.clickSection',function(e){
+	
+	var item = $(this);
+	var name = item.find('.name').text();
+	var msgType = item.attr('msg-type');
+	var msgToId = item.attr('msg-to-id');
+	var messageDataDiv = $('#message-data');
+	//console.log(name+">>"+msgType+">>"+msgToId);
+	
+	item.find('.badge').html('0');
+	$.get('/make-all-message-as-seen/'+msgType+"/"+msgToId,function(result){console.log(result);});
+	
+	$('#message-room-name').html(name);
+	$('#msgTypeVal').val(msgType);
+	$('#msgToId').val(msgToId);
+	messageDataDiv.html('');
+	$.get('/get-messages/'+msgType+"/"+msgToId,function(data){
+		//$.each(data, function(key, value){
+			//console.log(key+">>"+value);
+			messageDataDiv.append(data);
+
+		//});
+		$('.clickSection').removeClass('active');
+		item.addClass('active');
+	});
+});
+
+</script>
+}

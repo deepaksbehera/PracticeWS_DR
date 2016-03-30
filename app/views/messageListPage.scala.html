@@ -1,0 +1,25 @@
+@(appUser:models.AppUser, messageList : java.util.List[models.Messages])
+@import java.lang.Long; var prevMsgId=0L;
+
+@for(message <- messageList){
+	@defining(prevMsgId.equals(message.sendBy.id) ){ isMsgFrmSmUsr =>
+		@defining( message.sendBy.id.equals(appUser.id) ){ isMyMessage =>
+			@if(! (isMsgFrmSmUsr)){
+				@if(! (prevMsgId.equals(0L))){
+					</li>
+				}
+			<li class="message-li @if(isMyMessage){myMessage}else{otherMessage}" messageOfUser="@message.sendBy.id">
+				<span class="message-by-img">
+					<img src="@routes.UserController.showAppUserImageAsThumbnail(message.sendBy.id)" 
+					onerror="this.src='assets/images/defaultMail.png'" width="35" height="35"/>
+				</span>
+				<span class="message-data dateAndName">
+				 	<span class="message-data-name bold" >@message.sendBy.firstName</span>
+				  	<span class="message-data-time bold" >@message.sendOn.format("dd-MM-yyyy hh:mm:ss")</span> &nbsp; &nbsp;
+				</span>
+			}
+			@messageTemplate(message, isMyMessage, false)	
+			@(prevMsgId = message.sendBy.id)
+		}
+	}
+}

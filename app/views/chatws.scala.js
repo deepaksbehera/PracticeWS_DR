@@ -100,10 +100,15 @@ $(function(){
     	var lastMsgId = $('#message-data .message-li').last().attr('messageOfUser');
     	console.log(lastMsgId+ ">append>>"+msgById);
     	if(lastMsgId == msgById){
-    		//console.log("same");
-    		
-    		$('#message-data').append(messageContent);
-    		$('#message-data .message-li').last().find('.dateAndName').remove();
+    		console.log("same");
+    		var htmlElements = $(messageContent);
+    		//alert(htmlElements);
+    		var found = htmlElements.find('.message');
+    		//alert(found);
+    		$('#message-data .message-li').last().append(found);
+    		//$('#message-data').append(messageContent);
+    		//$('#message-data .message-li').last().find('.dateAndName').remove();
+    		//message
     	}else{
     		$('#message-data').append(messageContent);
     	}

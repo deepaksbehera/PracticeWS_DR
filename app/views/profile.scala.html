@@ -1,0 +1,28 @@
+@(form: Form[beans.AppUserBean])
+<form  method="POST" action="@routes.UserController.saveUser()" enctype="multipart/form-data" role="form">
+	<input type='hidden' name="id" value='@form("id").value' />
+	
+	<div class="">
+	    <label>First Name :</label>
+	    <input type='text' class='' title="" name="firstName" value='@form("firstName").value' />
+		<label>Last Name :</label>
+		<input type='text' class='' title="" name="lastName" value='@form("lastName").value' />
+		<br>
+		<label>Email address :</label>
+		<input type='text' class='' title="" name="email" value='@form("email").value' /> 
+		<br>
+		<label>Image :</label>
+		@defining(form("id").value){ id =>
+			@if(id != null){
+				<img id="currentPhoto" src="@routes.UserController.showAppUserImage(Long.parseLong(id))" onerror="this.src='assets/images/defaultMail.png'" width="250" height="250"/>
+			}
+		}
+		<br>
+		<label>Change Image :</label>
+		<input type="file" class="" name="photo"/>
+		<br>
+		<input type='submit' class="" value='Save'>
+		<input type='reset' class="" value='Reset'>
+	</div>
+	
+</form>

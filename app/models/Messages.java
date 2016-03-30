@@ -43,14 +43,14 @@ public class Messages extends BaseEntity{
 	public static List<Messages> getPersonalMessages(AppUser loginUser, AppUser requestForUser){
 		List<Messages> msgList = Messages.find.where().or(
 					Expr.and(Expr.eq("sendBy", loginUser), Expr.eq("sendTo", requestForUser)), 
-					Expr.and(Expr.eq("sendBy", requestForUser), Expr.eq("sendTo", loginUser))).orderBy("sendOn").setMaxRows(5).findList();
+					Expr.and(Expr.eq("sendBy", requestForUser), Expr.eq("sendTo", loginUser))).orderBy("sendOn").findList();
 		return msgList;
 	}
 	
 	public static List<Messages> getGroupMessages(AppUser loginUser, GroupChannel group){
 		List<Messages> msgList = new LinkedList<Messages>();
 		if(group.appUserList.contains(loginUser)){
-			msgList = Messages.find.where().eq("groupChannel", group).orderBy("sendOn").setMaxRows(5).findList();
+			msgList = Messages.find.where().eq("groupChannel", group).orderBy("sendOn").findList();
 		}
 		return msgList;
 	}
